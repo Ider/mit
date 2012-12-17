@@ -1,0 +1,10 @@
+<?
+
+class TheatersFetcher {
+
+}
+
+
+class MoviesFetcher {
+    
+}
