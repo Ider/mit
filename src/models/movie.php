@@ -11,7 +11,17 @@ class Movie {
 
 class MovieList {
     public $theater = null; //should be instance of Theater
-    public $date = '';
+    public $date = null;    //instance of DateTime
     public $movies = array();
+
+    public function __get($name) {
+        switch ($name) {
+            case 'size':
+                return count($this->movies);
+            
+            default:
+                return null;
+        }
+    }
 }
 
