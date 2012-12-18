@@ -4,6 +4,7 @@ require_once 'src/models/matcher.php';
 
 class GoogleMovie {
     const URL = 'http://www.google.com/movies';
+    const SOURCE = 'Google';
 
     public static function theaterListContentURL($zipcode) {
         $url = self::URL;
@@ -28,7 +29,7 @@ class GoogleTheatersFetcher extends TheatersFetcher {
     public function __construct($zipcode) {
         parent::__construct($zipcode);
         $this->initContents();
-
+        $this->theaterList->source = GoogleMovie::SOURCE;
     }
 
     private function initContents() {
