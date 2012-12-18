@@ -145,3 +145,148 @@ class TheaterListDisplayer extends DOMDisplayerBase{
         echo $this->layout->saveHTML();
     }
 }
+
+/**
+ * 
+ */
+class MovieListDisplayer extends DOMDisplayerBase{
+    protected $movieList = null;
+    protected $colorpicker;
+    public function __construct(MovieList $list) {
+        parent::__construct();
+        $this->movieList = $list;
+        $this->colorpicker = new ColorPicker();
+    }
+
+    public function generate() {
+        $mainContainer = $this->createElement('div'
+                            , array('class' => 'main_container'));
+        $this->layout->appendChild($mainContainer);
+
+        //create outer container
+        $styleList = array(
+                    'overflow' => 'hidden',
+                    'border' => "1px solid red",
+                );
+        $style = Util::cssjoin($styleList);
+
+        $attrs = array( 'class' => 'movie_showtime_outer_container', 
+                        'style' => $style,
+                    );
+        $outerContainer = $this->createElement('div', $attrs);
+        $mainContainer->appendChild($outerContainer);
+
+        //creat inner container
+        $styleList = array(
+                    'margin-left' => "-600px",
+                    'width' => (25*60*self::WIDTH_PER_MIN)."px",
+                );
+        $style = Util::cssjoin($styleList);
+        
+        $attrs = array( 'class' => 'movie_showtime_inner_container', 
+                        'style' => $style,
+                    );
+        $innerContainer = $this->createElement('div', $attrs);
+        
+        $innerContainer->setAttribute('style', $style);
+        $innerContainer->setAttribute('class', 'movie_showtime_inner_container');
+
+        $outerContainer->appendChild($innerContainer);
+
+        foreach ($this->movieList->movies as $movie) {
+            $movieLayout = $this->layoutForMovie($movie);
+            $innerContainer->appendChild($movieLayout);
+        }
+        
+        return true;
+    }
+
+    protected function layoutForMovie(Movie $movie) {
+        $this->showtimeRows = array(); //clear showtime row
+        
+        $attrs = array( 'class' => 'movie_container',
+                        'data-mid' => $movie->mid,
+                        );
+        $movieContainer = $this->createElement('div', $attrs);
+
+        $theaterName = $this->createTextNode($movie->name, 'h3');
+        $movieContainer->appendChild($theaterName);
+
+        $theaterLink = $this->createLinkNode('Movie Link', $movie->link, array('target'=>'_blank'), 'div');
+        $movieContainer->appendChild($theaterLink);
+
+        $attrs = array( 'class' => 'movie_container',
+                        'title' => $movie->name,
+                        'data-mid' => $movie->mid,
+                        );
+        $showtimeConteainer = $this->createElement('div', $attrs);
+        $movieContainer->appendChild($showtimeConteainer);
+
+        $this->generateShowtimeLayout($movie, $showtimeConteainer);
+
+        $width = self::WIDTH_PER_MIN * 25*60;
+        $height = self::SHOWTIME_HIGHT * count($this->showtimeRows);
+
+        $styleList = array(
+                'position' => 'relative',
+                'width' => "{$width}px",
+                'height' => "{$height}px",
+                'border' => "1px dashed black",
+            );
+        $style = Util::cssjoin($styleList);
+        $showtimeConteainer->setAttribute('style', $style);
+
+        return $movieContainer;
+    }
+
+    const WIDTH_PER_MIN = 1;
+    const SHOWTIME_HIGHT = 16;
+
+    protected function generateShowtimeLayout(Movie $movie, DOMElement $showtimeConteainer) {
+        $color = $this->colorpicker->next();
+        $width = self::WIDTH_PER_MIN * $movie->runtime;
+        $height = self::SHOWTIME_HIGHT - 1;
+
+        foreach ($movie->showtimes as $showtime) {
+            $time = explode(':', $showtime);
+            $minus = $time[0]*60+$time[1];
+            $left = self::WIDTH_PER_MIN*$minus;
+            $top = self::SHOWTIME_HIGHT * $this->showtimeRowIndex($minus, $movie->runtime);
+            $styleList = array(
+                    'position' => 'absolute',
+                    'top' => "{$top}px",
+                    'left' => "{$left}px",
+                    'width' => "{$width}px",
+                    'height' => "{$height}px",
+                    'background-color' => $color,
+                );
+            $style = Util::cssjoin($styleList);
+            $attrs = array( 'class' => 'movie_showtime',
+                            'title' => $showtime,
+                            'data-showtime' => $showtime,
+                            'style' => $style,
+                    );
+            $showtimeBar = $this->createElement('div', $attrs);
+            $showtimeConteainer->appendChild($showtimeBar);
+            $showtimeBar->setAttribute('style', $style);
+        }
+    }
+
+    /////// Help Methods ///////
+    private $showtimeRows = array();
+    private function showtimeRowIndex($showtime, $runtime) {
+        $count = count($this->showtimeRows);
+        for ($i=0; $i < $count; $i++) { 
+            if ($this->showtimeRows[$i] < $showtime) {
+                break;
+            }
+        }
+
+        $this->showtimeRows[$i] = ($showtime + $runtime);
+        return $i;
+    }
+
+    public function show() {
+        echo $this->layout->saveHTML();
+    }
+}
