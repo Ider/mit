@@ -10,7 +10,7 @@ class GoogleMovie {
         return "$url?near=$zipcode";
     }
 
-    public static function movieListContentURL($tid, DateTime $date) {
+    public static function movieListContentURL($tid, DateTime $date = null) {
         $url = self::URL;
         if (!isset($date)) $date = new DateTime();
 
@@ -23,13 +23,78 @@ class GoogleMovie {
 }
 
 class GoogleTheatersFetcher extends TheatersFetcher {
+    private $contents;
 
     public function __construct($zipcode) {
         parent::__construct($zipcode);
+        $this->initContents();
+
+    }
+
+    private function initContents() {
+        $this->contents =array();
+
+        $zipcode = $this->theaterList->zipcode;
+        $url = GoogleMovie::theaterListContentURL($zipcode);
+        $con = file_get_contents($url);
+
+        if ($con === false) {
+            //TODO: log error here
+            return;
+        }
+
+        static $separator = '<div class=theater>';
+
+        $arr = explode($separator, $con);
+        if (array_shift($arr) === null) {
+            //TODO: log error here
+            return;
+        }
+
+        static $spliter = '<div class=showtime>';
+        $count = count($arr);
+        for ($i=0; $i < $count; $i++) { 
+            $theaterCon = explode($spliter , $arr[$i]);
+            $arr[$i] = $theaterCon[0];
+        }
+
+        $this->contents = $arr;
     }
 
     public function fetchTheaters() {
+        $theaters = array();
+        foreach ($this->contents as $content) {
+            $theater = $this->fetchTheater($content);
+            if ($theater == null) continue;
+            $theaters[] = $theater;
+        }
+        return $theaters;
+    }
 
+    protected function fetchTheater($content) {
+        $theater = new Theater();
+        $matcher = new StringMatcher($content);
+        $patternList = self::theaterMatchingPatternList();
+
+        $matcher->execute($patternList, $theater);
+
+        $theater->link = GoogleMovie::movieListContentURL($theater->tid);
+
+        return $theater;
+    }
+
+    protected static function theaterMatchingPatternList() {
+        static $patternList = null;
+        if ($patternList == null) {
+            $patternList = array(
+                array('name', '>([^<>]+)</a></h2>'),
+                array('tid', 'tid=([a-z0-9]+)'),
+                array('address', '<div class=info>([^<]+) - '),
+                array('phone', '<div class=info>[^<]+ - ([^<]+)'),
+            );
+        }
+
+        return $patternList;
     }
 }
 
