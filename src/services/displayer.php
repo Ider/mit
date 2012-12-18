@@ -89,6 +89,14 @@ abstract class DOMDisplayerBase extends DisplayerBase {
         return $parent;
     }
 
+    /////// Help Methods ///////
+    
+    protected function noContentMessage($str) {
+        $node = $this->createTextNode($str, 'div');
+        $node->setAttribute('class', 'no_content');
+        return $node;
+    }
+
 }
 
 class TheaterListDisplayer extends DOMDisplayerBase{
@@ -103,6 +111,12 @@ class TheaterListDisplayer extends DOMDisplayerBase{
         $mainContainer = $this->createElement('div'
                             , array('class' => 'main_container'));
         $this->layout->appendChild($mainContainer);
+
+        if (count($this->theaterList->theaters) <= 0) {
+            $message = 'No Theaters found in zip area: '.$this->theaterList->zipcode;
+            $mainContainer->appendChild($this->noContentMessage($message));
+            return  true;
+        }
 
         foreach ($this->theaterList->theaters as $theater) {
             $theaterLayout = $this->layoutForTheater($theater);
@@ -121,6 +135,7 @@ class TheaterListDisplayer extends DOMDisplayerBase{
 
         $theaterName = $this->createTextNode($theater->name, 'h3');
         $theaterContainer->appendChild($theaterName);
+        $theaterName->setAttribute('class', 'theater_title');
 
         $theaterAddress = $this->createTextNode($theater->address, 'div');
         $theaterContainer->appendChild($theaterAddress);
@@ -183,6 +198,12 @@ class MovieListDisplayer extends DOMDisplayerBase{
         $innerContainer = $this->createElement('div', $attrs);
         $outerContainer->appendChild($innerContainer);
 
+        if (count($this->movieList->movies) <= 0) {
+            $message = 'No movie found';
+            $mainContainer->appendChild($this->noContentMessage($message));
+            return  true;
+        }
+        
         //create movie layout
         foreach ($this->movieList->movies as $movie) {
             $movieLayout = $this->layoutForMovie($movie);
@@ -201,11 +222,12 @@ class MovieListDisplayer extends DOMDisplayerBase{
         $movieContainer = $this->createElement('div', $attrs);
 
         //basic information
-        $theaterName = $this->createTextNode($movie->name, 'h3');
-        $movieContainer->appendChild($theaterName);
+        $movieName = $this->createTextNode($movie->name, 'h3');
+        $movieContainer->appendChild($movieName);
+        $movieName->setAttribute('class', 'movie_title');
 
-        $theaterLink = $this->createLinkNode('Movie Link', $movie->link, array('target'=>'_blank'), 'div');
-        $movieContainer->appendChild($theaterLink);
+        $movieLink = $this->createLinkNode('Movie Link', $movie->link, array('target'=>'_blank'), 'div');
+        $movieContainer->appendChild($movieLink);
 
         //showtime container
         $attrs = array( 'class' => 'movie_container',
