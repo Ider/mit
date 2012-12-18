@@ -100,15 +100,9 @@ class TheaterListDisplayer extends DOMDisplayerBase{
     }
 
     public function generate() {
-        $mainContainer = $this->layout->createElement('div');
+        $mainContainer = $this->createElement('div'
+                            , array('class' => 'main_container'));
         $this->layout->appendChild($mainContainer);
-
-        $style = Util::cssjoin(array(
-                    'width' => '900px',
-                    'margin' => 'auto',
-                ));
-
-        $mainContainer->setAttribute('style', $style);
 
         foreach ($this->theaterList->theaters as $theater) {
             $theaterLayout = $this->layoutForTheater($theater);
@@ -187,12 +181,9 @@ class MovieListDisplayer extends DOMDisplayerBase{
                         'style' => $style,
                     );
         $innerContainer = $this->createElement('div', $attrs);
-        
-        $innerContainer->setAttribute('style', $style);
-        $innerContainer->setAttribute('class', 'movie_showtime_inner_container');
-
         $outerContainer->appendChild($innerContainer);
 
+        //create movie layout
         foreach ($this->movieList->movies as $movie) {
             $movieLayout = $this->layoutForMovie($movie);
             $innerContainer->appendChild($movieLayout);
@@ -209,12 +200,14 @@ class MovieListDisplayer extends DOMDisplayerBase{
                         );
         $movieContainer = $this->createElement('div', $attrs);
 
+        //basic information
         $theaterName = $this->createTextNode($movie->name, 'h3');
         $movieContainer->appendChild($theaterName);
 
         $theaterLink = $this->createLinkNode('Movie Link', $movie->link, array('target'=>'_blank'), 'div');
         $movieContainer->appendChild($theaterLink);
 
+        //showtime container
         $attrs = array( 'class' => 'movie_container',
                         'title' => $movie->name,
                         'data-mid' => $movie->mid,
@@ -222,8 +215,10 @@ class MovieListDisplayer extends DOMDisplayerBase{
         $showtimeConteainer = $this->createElement('div', $attrs);
         $movieContainer->appendChild($showtimeConteainer);
 
+        //showtimes layout
         $this->generateShowtimeLayout($movie, $showtimeConteainer);
 
+        //showtime container style
         $width = self::WIDTH_PER_MIN * 25*60;
         $height = self::SHOWTIME_HIGHT * count($this->showtimeRows);
 
