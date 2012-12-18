@@ -27,10 +27,10 @@ abstract class DOMDisplayerBase extends DisplayerBase {
     }
 
     /**
-     * [createElement description]
-     * @param  [type] $tag        [description]
-     * @param  array  $attributes [description]
-     * @return [type]
+     * create a new DOM elements with specific tag, and set attributes from passed in data
+     * @param  String $tag     DOM tag
+     * @param  Dictionary  $attributes DOM attributes
+     * @return DOMElement   DOMElement with $tag and $attributes information
      */
     public function createElement($tag, $attributes = array()) {
         $elem = $this->layout->createElement($tag);
