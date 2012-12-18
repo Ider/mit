@@ -44,7 +44,6 @@ class StringMatcher {
         $m = $this->modifier; //modifier
 
         $p = $d.str_replace($d, '\\'.$d, $pattern).$d.$m;
-        echo $p;
         return $p;
     }
 
@@ -71,6 +70,40 @@ class StringMatcher {
         }
 
         return $this->matches;
+    }
+
+    /**
+     * Execute each patern in $patternList, and assign result to $obj property.
+     * patternList is a list of arrays, each array contains 2-3 elements
+     *                 where the first element is the property of $obj that will assign result to,
+     *                 the second element it should be the pattern used to look up, 
+     *                 the third element is optional, if set, it should be a callback function to manipulate the matching result, 
+     *     if third element is not set, then **first** back-reference matched result will be assigned to property,
+     *         otherwise callback function result will be assigned to property
+     *                                  
+     * If no result find for that key, $obj property will be stay the same.
+     * @param  Dictionary   $patternList    regular expression patterns container
+     * @param  Object       $obj  the object that need to assign result to, if null. stdClass will be created
+     * @return $obj           [description]
+     */
+    public function execute($patternList, $obj = null){
+        if (!is_array($patternList)) return $obj;
+        if (!isset($obj)) $obj = new stdClass();
+
+        $defaultCallBack = function($matches){ return $matches[1]; };
+        
+        foreach ($patternList as $combo) {
+            $prop = $combo[0];
+            $pattern = $combo[1];
+            $callback = $defaultCallBack;
+            if (isset($combo[2])) $callback = $combo[2];
+
+            $matches = $this->match($pattern);
+            if (empty($matches)) continue;
+
+            $obj->$prop = $callback($matches);
+        }
+        return $obj;
     }
 
     public function setModifier($modifierFlag) {
