@@ -21,6 +21,11 @@ class GoogleMovie {
 
         return "$url?tid=$tid&date=$day";
     }
+
+    public static function movieContentURL($mid) {
+        $url = self::URL;
+        return "$url?mid=$mid";
+    }
 }
 
 class GoogleTheatersFetcher extends TheatersFetcher {
@@ -33,7 +38,7 @@ class GoogleTheatersFetcher extends TheatersFetcher {
     }
 
     private function initContents() {
-        $this->contents =array();
+        $this->contents = array();
 
         $zipcode = $this->theaterList->zipcode;
         $url = GoogleMovie::theaterListContentURL($zipcode);
@@ -106,7 +111,8 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
 
     public function __construct(Theater $theater, DateTime $date) {
         parent::__construct($theater, $date);
-        $this->initContents();
+        $this->initContents();        
+        $this->movieList->source = GoogleMovie::SOURCE;
     }
 
     private function initContents() {
@@ -148,6 +154,8 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         $patternList = self::movieMatchingPatternList();
 
         $matcher->execute($patternList, $movie);
+
+        $movie->link = GoogleMovie::movieContentURL($movie->mid);
 
         $showtimePattern = '(\d+):(\d+)(am|pm)?&';
         $matches = $matcher->match($showtimePattern, true);

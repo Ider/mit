@@ -13,6 +13,7 @@ class MovieList {
     public $theater = null; //should be instance of Theater
     public $date = null;    //instance of DateTime
     public $movies = array();
+    public $source = 'unknown';
 
     public function __get($name) {
         switch ($name) {
