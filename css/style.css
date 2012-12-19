@@ -16,9 +16,14 @@
 
 }
 
-.theater_container:nth-child(4n+1), .theater_container:nth-child(4n+4) {
-    background-color: gray;
-    color: white;
+.theater_container:nth-child(4n+1),
+.theater_container:nth-child(4n+4) {
+    background-color: #cdcdcd;
+}
+
+.theater_container:nth-child(4n+1) a,
+.theater_container:nth-child(4n+4) a {
+    /*color: blue;*/
 }
 
 
@@ -68,3 +73,68 @@
 .movie_showtime:active {
     box-shadow: none;
 }
+
+
+/********************* Search Form Style *********************/
+.search_container {
+    text-align: center;
+}
+.search_middle {
+    margin-top: 200px;
+}
+
+.search_submit {
+    font-size: 14px;
+    color: #ffffff;
+    padding: 10px 20px;
+    background: -moz-linear-gradient(top, #42aaff 0%, #003366); 
+    background: -webkit-linear-gradient(top, #42aaff 0%, #003366);
+    background: -o-linear-gradient(top, #42aaff 0%, #003366);
+    background: -ms-linear-gradient(top, #42aaff 0%, #003366);
+    background: -webkit-gradient(linear, left top, left bottom, from(#42aaff), to(#003366));
+    border-radius: 0 7px 7px 0;
+    border: 1px solid #003366;
+    margin: 0;
+    box-shadow: 0 1px 3px rgba(000,000,000,0.5), inset 0 0 1px rgba(255,255,255,0.5);
+    text-shadow: 0 2px 0 rgba(000,000,000,0.7), 0 1px 0 rgba(255,255,255,0.3);
+    font-weight: bold;
+    line-height: 17px;
+}
+
+.search_submit:hover {
+    text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.search_submit:active {
+    background: #003366;
+}
+.search_text {
+    font-size: 14px;
+    border: 1px solid #003366;
+    padding: 10px 20px;
+    margin: 0;
+    border-radius: 7px 0 0 7px;
+    text-align: center;
+    font-weight: bold;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
