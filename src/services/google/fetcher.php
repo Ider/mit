@@ -70,14 +70,14 @@ class GoogleTheatersFetcher extends TheatersFetcher {
     public function fetchTheaters() {
         $theaters = array();
         foreach ($this->contents as $content) {
-            $theater = $this->fetchTheater($content);
+            $theater = self::fetchTheater($content);
             if ($theater == null) continue;
             $theaters[] = $theater;
         }
         return $theaters;
     }
 
-    protected function fetchTheater($content) {
+    public static function fetchTheater($content) {
         $theater = new Theater();
         $matcher = new StringMatcher($content);
         $patternList = self::theaterMatchingPatternList();
@@ -105,12 +105,18 @@ class GoogleTheatersFetcher extends TheatersFetcher {
 }
 
 class GoogleMoviesFetcher extends MoviesFetcher  {
-    // protected $movieList;    //inherited from MoviesFetcher
+    /* inherited from MoviesFetcher
+     *
+     * protected $movieList;    
+     * protected $tid;
+     * 
+    **/
 
     private $contents;
+    private $theaterContent;
 
-    public function __construct(Theater $theater, DateTime $date) {
-        parent::__construct($theater, $date);
+    public function __construct($tid = '', DateTime $date) {
+        parent::__construct($tid, $date);
         $this->initContents();        
         $this->movieList->source = GoogleMovie::SOURCE;
     }
@@ -118,9 +124,8 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
     private function initContents() {
         $this->contents =array();
 
-        $tid = $this->movieList->theater->tid;
         $date = $this->movieList->date;
-        $url = GoogleMovie::movieListContentURL($tid, $date);
+        $url = GoogleMovie::movieListContentURL($this->tid, $date);
         $con = file_get_contents($url);
 
         if ($con === false) {
@@ -130,25 +135,32 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         static $separator = '<div class=movie>';
 
         $arr = explode($separator, $con);
-        if (array_shift($arr) === null) {
+        $theaterContent = array_shift($arr);
+        if ($theaterContent === null) {
             //TODO: log error here
             return;
         }
 
+        $this->theaterContent = $theaterContent;
         $this->contents = $arr;
+    }
+
+    public function fetchTheater() {
+        $theater = GoogleTheatersFetcher::fetchTheater($this->theaterContent);
+        return $theater;
     }
 
     public function fetchTheaterMovies() {
         $movies = array();
         foreach ($this->contents as $content) {
-            $movie = $this->fetchMovie($content);
+            $movie = self::fetchMovie($content);
             if ($movie == null) continue;
             $movies[] = $movie;
         }
         return $movies;
     }
 
-    protected function fetchMovie($content) {
+    public static function fetchMovie($content) {
         $movie = new Movie();
         $matcher = new StringMatcher($content);
         $patternList = self::movieMatchingPatternList();

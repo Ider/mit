@@ -27,12 +27,12 @@ class FetcherFactory {
     }
 
 
-    public static function movieListFetcher(Theater $theater, DateTime $date, $source = 'google') {
+    public static function movieListFetcher($tid, DateTime $date, $source = 'google') {
         if (!isset(self::$sources[$source]) || ! self::$sources[$source]) {
             $source = 'google';
         }
 
         $fetcher = self::$movieFetchers[$source];
-        return new $fetcher($theater, $date);
+        return new $fetcher($tid, $date);
     }
 }

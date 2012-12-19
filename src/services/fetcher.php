@@ -26,15 +26,18 @@ abstract class TheatersFetcher {
 
 abstract class MoviesFetcher {
     protected $movieList;
-    public function __construct(Theater $theater = null, DateTime $date = null) {
+    protected $tid;
+
+    public function __construct($tid = '', DateTime $date = null) {
         $list = new MovieList();
         $list->date = $date;
-        $list->theater = $theater;
         $this->movieList = $list;
+        $this->tid = $tid;
     }
 
     public function movieList() {
         if (empty($this->movieList->movies)) {
+            $this->movieList->theater = $this->fetchTheater();
             $this->movieList->movies = $this->fetchTheaterMovies();
         }
 
@@ -42,7 +45,14 @@ abstract class MoviesFetcher {
     }
 
     /**
+     * Fetch theater infomation associfated with tid
+     * @return Theater [description]
+     */
+    abstract protected function fetchTheater();
+
+    /**
      * Fetch a list of movies infomation that showing in theater in that date
+     * @return MovieList 
      */
     abstract protected function fetchTheaterMovies();
 }
