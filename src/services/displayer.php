@@ -189,15 +189,7 @@ class MovieListDisplayer extends DOMDisplayerBase{
         $this->layout->appendChild($mainContainer);
 
         //create outer container
-        $styleList = array(
-                    'overflow' => 'hidden',
-                    'border' => "1px solid red",
-                );
-        $style = Util::cssjoin($styleList);
-
-        $attrs = array( 'class' => 'movie_showtime_outer_container', 
-                        'style' => $style,
-                    );
+        $attrs = array('class' => 'movie_list_outer_container');
         $outerContainer = $this->createElement('div', $attrs);
         $mainContainer->appendChild($outerContainer);
 
@@ -208,7 +200,7 @@ class MovieListDisplayer extends DOMDisplayerBase{
                 );
         $style = Util::cssjoin($styleList);
         
-        $attrs = array( 'class' => 'movie_showtime_inner_container', 
+        $attrs = array( 'class' => 'movie_list_inner_container', 
                         'style' => $style,
                     );
         $innerContainer = $this->createElement('div', $attrs);
@@ -246,7 +238,7 @@ class MovieListDisplayer extends DOMDisplayerBase{
         $movieContainer->appendChild($movieLink);
 
         //showtime container
-        $attrs = array( 'class' => 'movie_container',
+        $attrs = array( 'class' => 'showtime_container',
                         'title' => $movie->name,
                         'data-mid' => $movie->mid,
                         );
@@ -264,7 +256,6 @@ class MovieListDisplayer extends DOMDisplayerBase{
                 'position' => 'relative',
                 'width' => "{$width}px",
                 'height' => "{$height}px",
-                'border' => "1px dashed black",
             );
         $style = Util::cssjoin($styleList);
         $showtimeConteainer->setAttribute('style', $style);

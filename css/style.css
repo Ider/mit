@@ -29,24 +29,33 @@
 
 /********************* Movie View Style *********************/
 
-.movie_showtime:hover {
-    background-color: green !important;
+
+.movie_list_outer_container {
+    overflow: hidden;
+    border:  1px solid red;
 }
 
-.outer_container {
-    position: relative;
-    width: 800px;
+.showtime_container {
+    border: 1px dashed black;
+}
 
-}
-.inner_container {
-    position: absolute;
-    left: -600px;
-    top: 0;
-}
 .movie_title {
     text-align: right;
     margin-bottom: 0;
     padding-right: 10px
+}
+
+.movie_showtime {
+    box-shadow: 3px 3px 3px #777777;
+    border-radius: 8px;
+}
+
+.movie_showtime:hover {
+    background-color: green !important;
+}
+
+.movie_showtime:active {
+    box-shadow: none;
 }
 
 .wishlist_outter_container {
@@ -65,15 +74,6 @@
     background-color: white;
     overflow: hidden;
 }
-.movie_showtime {
-    box-shadow: 3px 3px 3px #777777;
-    border-radius: 8px;
-}
-
-.movie_showtime:active {
-    box-shadow: none;
-}
-
 
 /********************* Search Form Style *********************/
 .search_container {
