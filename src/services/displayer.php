@@ -133,11 +133,10 @@ class TheaterListDisplayer extends DOMDisplayerBase{
         $theaterContainer->setAttribute('class', 'theater_container');
         $theaterContainer->setAttribute('data-tid', $theater->tid);
 
-        $theaterName = $this->createTextNode($theater->name, 'h3');
+        $theaterName = $this->layoutForTheaterTitle($theater);
         $theaterContainer->appendChild($theaterName);
-        $theaterName->setAttribute('class', 'theater_title');
 
-        $theaterAddress = $this->createTextNode($theater->address, 'div');
+        $theaterAddress = $this->layoutForTheaterAddress($theater);
         $theaterContainer->appendChild($theaterAddress);
 
         $theaterPhone = $this->createTextNode($theater->phone, 'div');
@@ -148,6 +147,23 @@ class TheaterListDisplayer extends DOMDisplayerBase{
         $theaterContainer->appendChild($theaterLink);
 
         return $theaterContainer;
+    }
+
+    protected function layoutForTheaterTitle(Theater $theater) {
+        $url = SITEURL;
+        $link = "$url?tid={$theater->tid}";
+        $titleLayout = $this->createLinkNode($theater->name, $link, null, 'h3');
+        $titleLayout->setAttribute('class', 'theater_title');
+
+        return $titleLayout;
+    }
+
+    protected function layoutForTheaterAddress(Theater $theater) {
+        $param = str_replace(' ', '+', $theater->address);
+        $link = "https://maps.google.com/maps?q=$param";
+        $addressLayout = $this->createLinkNode($theater->address, $link, array('target'=>'_blank'), 'div');
+
+        return $addressLayout;
     }
 
     public function show() {
