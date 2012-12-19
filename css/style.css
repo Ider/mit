@@ -1,0 +1,70 @@
+.main_container {
+    width:900px;
+    margin: auto;
+}
+
+
+
+/********************* Theater View Style *********************/
+
+.theater_container {
+    width: 430px;
+    float: left;
+    min-height:120px;
+    max-height: 200px;
+    padding: 0 10px 10px;
+
+}
+
+.theater_container:nth-child(4n+1), .theater_container:nth-child(4n+4) {
+    background-color: gray;
+    color: white;
+}
+
+
+/********************* Movie View Style *********************/
+
+.movie_showtime:hover {
+    background-color: green !important;
+}
+
+.outer_container {
+    position: relative;
+    width: 800px;
+
+}
+.inner_container {
+    position: absolute;
+    left: -600px;
+    top: 0;
+}
+.movie_title {
+    text-align: right;
+    margin-bottom: 0;
+    padding-right: 10px
+}
+
+.wishlist_outter_container {
+    position: fixed;
+    bottom: 5px;
+    width: 98%;
+    height: 64px;
+
+    left: 1%; 
+}
+.wish_zone {
+    margin: auto;
+    width: 900px;
+    height: 64px;
+    border: 1px solid blue;
+    background-color: white;
+    overflow: hidden;
+}
+.movie_showtime {
+    box-shadow: 3px 3px 3px #777777;
+    border-radius: 8px;
+}
+
+.movie_showtime:active {
+    box-shadow: none;
+}
