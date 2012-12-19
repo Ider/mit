@@ -9,4 +9,13 @@ if (isset($_GET['tid'])) {
     return;
 } 
 
+?>
 
+<link rel="stylesheet" type="text/css" href="./css/style.css" />
+<div class="search_middle">
+
+<?php
+    include 'searchsubview.php';
+?>
+
+</div>
