@@ -3,6 +3,17 @@
         <title>Movies</title>
     </head>
     <link rel="stylesheet" type="text/css" href="./css/style.css" />
+
+<style type="text/css" id="none_script_style">
+    
+.movie_showtime:hover:before {
+    content: attr(title);
+    color: #FFFFFF;
+    font-size: 13px;
+    padding-left: 10px;
+}
+</style>
+
 <body>
 
 <?php
