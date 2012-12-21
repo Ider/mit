@@ -58,6 +58,21 @@
     box-shadow: none;
 }
 
+
+.movie_info_panel {
+    position: absolute;
+    background: #2a75a9;
+    border: 2px solid #7EB5D6;
+    padding: 7px;
+    min-width: 100px;
+    min-height: 30px;
+    border-radius: 7px;
+    box-shadow: 3px 3px 3px #777777;
+
+    text-align: center;
+    color: white;
+}
+
 .wishlist_outter_container {
     position: fixed;
     bottom: 5px;
