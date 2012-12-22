@@ -59,9 +59,9 @@ class StringMatcher {
         $pattern = $this->delimit($pattern);
 
         if ($all) {
-            $count = preg_match_all($pattern, $this->str, &$this->matches, PREG_SET_ORDER);
+            $count = preg_match_all($pattern, $this->str, $this->matches, PREG_SET_ORDER);
         } else {
-            $count = preg_match($pattern, $this->str, &$this->matches);
+            $count = preg_match($pattern, $this->str, $this->matches);
         }
 
         if ($count === false) {
