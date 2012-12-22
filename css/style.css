@@ -52,6 +52,7 @@
 
 .movie_showtime:hover {
     background-color: green !important;
+    z-index: 99;
 }
 
 .movie_showtime:active {
@@ -68,18 +69,22 @@
     min-height: 30px;
     border-radius: 7px;
     box-shadow: 3px 3px 3px #777777;
-
+    display: none;
     text-align: center;
     color: white;
 }
 
+.footer_placeholder {
+    height: 64px;
+}
 .wishlist_outter_container {
     position: fixed;
     bottom: 5px;
     width: 98%;
     height: 64px;
-
     left: 1%; 
+    display: none;
+    /*z-index: 99;*/
 }
 .wish_zone {
     margin: auto;
@@ -88,6 +93,10 @@
     border: 1px solid blue;
     background-color: white;
     overflow: hidden;
+}
+
+#wish_movie_container {
+    border: 1px dashed black;
 }
 
 /********************* Search Form Style *********************/
