@@ -43,23 +43,52 @@
             return config;
         },
 
-        formatAminate: function(animate) {
-            if (!animate ||!animate.show ||!animate.hide) {
-                return {show:'show', hide:'hide'};
-            }
+        extension: {
+            pointTo: function(obj) {
+                obj = $(obj);
+                var offset = obj.offset();
+                if (!offset) return;
 
-            return animate;
+                var pto = cf.arrow.pointto[this.arrow.pointto],
+                    pos = cf.arrow.position[this.arrow.position],
+                    dir = cf.arrow.direction[this.arrow.direction],
+                    axi = dir[1], mul = dir[2],
+                    arw = this.arrow.size+this.arrow.border;
+                
+                var piv, //pivot: for arrow offset
+                    abs, //aboslute offset: offset on content
+                    rel; //relative offset: offset on arrow and pointer
+                if (axi == 'top') {
+                    piv = 'left'; abs = 'outerWidth'; rel = 'outerHeight';
+                } else {
+                    piv = 'top';  abs = 'outerHeight'; rel = 'outerWidth';
+                }
+
+                var c = obj[abs](), //content
+                    p = this[abs](); //panel
+                offset[piv] += (c-p)/2 + mul*((c+p)/2+arw);
+
+                c = obj[rel](), p = this[rel]();
+                offset[axi] += (pto*c-pos*p)/2;
+
+                this.css(offset);
+            }
         }
     };
 
-    TipPanel.prototype = {
+    TipPanel = {
+        init: function(panel, config) {
+            panel.css('position', 'absolute');
+            TipPanel.genArrow.call(panel, config.arrow);
+            $.extend(panel, cf.extension);
+        },
         genArrow: function(arrowConfig) {
             if (!arrowConfig) arrowConfig= {};
 
             cf.formatArrowConfig(arrowConfig);
             this.arrow = arrowConfig;
 
-            var bgColor = this.panel.css('background-color'),
+            var bgColor = this.css('background-color'),
                 size = arrowConfig.size,
                 pos = cf.arrow.position[arrowConfig.position],
                 dir = cf.arrow.direction[arrowConfig.direction],
@@ -78,12 +107,11 @@
             css['border-'+seg+'-color'] = bgColor;
             css[axi] = (50*pos)+'%';
             css['margin-'+axi] = -size*pos;
-
-            $('<div></div>').css(css).appendTo(this.panel);
+            this.arrow.inner = $('<div></div>').css(css).appendTo(this);
 
             // Generate arrow border if box has border
-            var borderwidth = parseInt(this.panel.css('border-width'), 10),
-                bordercolor = this.panel.css('border-color');
+            var borderwidth = parseInt(this.css('border-width'), 10),
+                bordercolor = this.css('border-color');
             if (arrowConfig.noborder || borderwidth <=0) return;
             ++borderwidth;//arrow border is tilted, make 1px giger to make nicer
             size += borderwidth;
@@ -95,96 +123,22 @@
             css['border-'+seg+'-color'] = bordercolor;
             css[axi] = (50*pos)+'%';
             css['margin-'+axi] = -size*pos + (pos-1)*borderwidth;
-            $('<div></div>').css(css).appendTo(this.panel);
-        },
-
-        show: function(offset) {
-            if (offset) {
-                this.panel.css(offset);
-            }
-            this.panel.stop(true);
-            this.panel.hide();
-            this.panel[this.animate.show]();
-        },
-        showAt: function(obj) {
-            obj = $(obj);
-            var offset = obj.offset();
-            if (!offset) return;
-
-            var pto = cf.arrow.pointto[this.arrow.pointto],
-                pos = cf.arrow.position[this.arrow.position],
-                dir = cf.arrow.direction[this.arrow.direction],
-                axi = dir[1], mul = dir[2],
-                arw = this.arrow.size+this.arrow.border;
-            
-            var piv, //pivot: for arrow offset
-                abs, //aboslute offset: offset on content
-                rel; //relative offset: offset on arrow and pointer
-            if (axi == 'top') {
-                piv = 'left'; abs = 'outerWidth'; rel = 'outerHeight';
-            } else {
-                piv = 'top';  abs = 'outerHeight'; rel = 'outerWidth';
-            }
-
-            var c = obj[abs](), //content
-                p = this.panel[abs](); //panel
-            offset[piv] += (c-p)/2 + mul*((c+p)/2+arw);
-
-            c = obj[rel](), p = this.panel[rel]();
-            offset[axi] += (pto*c-pos*p)/2;
-
-            this.show(offset);
-        },
-        hide: function(delay) {
-            delay = parseInt(delay, 10);
-            delay = isNaN(delay)? 0: delay;
-            this.panel.delay(delay)[this.animate.hide]();
+            this.arrow.outer = $('<div></div>').css(css).appendTo(this);
         }
-
-        // showAbove: function(obj) {
-        //     var offset = $(obj).offset();
-        //     offset.top -= this.panel.outerHeight()+this.arrow.size;
-        //     this.show(offset);
-
-        // },
-
-        // showUnder: function(obj) {
-        //     obj = $(obj);
-        //     var offset = obj.offset();
-        //     offset.top += obj.outerHeight()+this.arrow.size;
-        //     this.show(offset);
-
-        // },
-
-        // showBefore: function(obj) {
-
-        // },
-
-        // showAfter: function(obj) {
-
-        // }
     };
 
     function TipPanel(panel, config) {
-        this.panel = panel;
-        this.panel.css('position', 'absolute');
-        this.genArrow(config.arrow);
-        this.animate = cf.formatAminate(config.animate);
+        
     }
-
-    
-
 
     $.tip = function(panel, config) {
         panel = $(panel);
-        if (panel.length <= 0) {
-            panel = $('<div></div>').appendTo($('body'));
-        }
-        if (!config) {
-            config = {};
-        }
-
-        return new TipPanel(panel, config);
+        if (panel.length <= 0) panel = $('<div></div>').appendTo($('body'));
+        if (!config) config = {};
+        
+        TipPanel.init(panel, config);
+        
+        return panel;
     };
     
 })(jQuery, window);
