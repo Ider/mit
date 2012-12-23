@@ -19,7 +19,7 @@ class GoogleMovie {
         $diff = $date->diff(new DateTime());
         $day = $diff->d;
 
-        return "$url?tid=$tid&date=$day";
+        return "$url?near=usa&tid=$tid&date=$day";
     }
 
     public static function movieContentURL($mid) {
@@ -35,6 +35,7 @@ class GoogleTheatersFetcher extends TheatersFetcher {
         parent::__construct($zipcode);
         $this->initContents();
         $this->theaterList->source = GoogleMovie::SOURCE;
+
     }
 
     private function initContents() {
@@ -43,7 +44,6 @@ class GoogleTheatersFetcher extends TheatersFetcher {
         $zipcode = $this->theaterList->zipcode;
         $url = GoogleMovie::theaterListContentURL($zipcode);
         $con = file_get_contents($url);
-
         if ($con === false) {
             //TODO: log error here
             return;
