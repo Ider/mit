@@ -10,9 +10,12 @@ if (isset($_GET['tid'])) {
 } 
 
 ?>
+        <title>Let's Movie Movie</title>
 
 <link rel="stylesheet" type="text/css" href="./css/style.css" />
+<link href='http://fonts.googleapis.com/css?family=Gorditas' rel='stylesheet' type='text/css'>
 <div class="search_middle">
+<div style="font-size:80px; font-family:'Gorditas'; text-align:center; margin-bottom: 40px;">Let's Movie Movie</div>
 
 <?php
     include 'searchsubview.php';
