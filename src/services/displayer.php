@@ -75,10 +75,12 @@ abstract class DOMDisplayerBase extends DisplayerBase {
         $linkNode = $this->createTextNode($text, 'a');
         $linkNode->setAttribute('href', $link);
 
-        foreach ($attributes as $key => $value) {
-            $linkNode->setAttribute($key, $value);
+        if ($attributes) {
+            foreach ($attributes as $key => $value) {
+                $linkNode->setAttribute($key, $value);
+            }
         }
-
+        
         if (!isset($parent)) return $linkNode;
         
         if (!($parent instanceof DOMNode)) {
@@ -99,6 +101,9 @@ abstract class DOMDisplayerBase extends DisplayerBase {
 
 }
 
+/**
+ * Theater List Displayer
+ */
 class TheaterListDisplayer extends DOMDisplayerBase{
     protected $theaterList = null;
 
@@ -172,7 +177,7 @@ class TheaterListDisplayer extends DOMDisplayerBase{
 }
 
 /**
- * 
+ * Movie List Displayer
  */
 class MovieListDisplayer extends DOMDisplayerBase{
     protected $movieList = null;
@@ -235,12 +240,13 @@ class MovieListDisplayer extends DOMDisplayerBase{
         $movieName->setAttribute('class', 'movie_title');
 
         $movieLink = $this->createLinkNode('Movie Link', $movie->link, array('target'=>'_blank'), 'div');
-        $movieContainer->appendChild($movieLink);
+        // $movieContainer->appendChild($movieLink);
 
         //showtime container
         $attrs = array( 'class' => 'showtime_container',
                         'title' => $movie->name,
                         'data-mid' => $movie->mid,
+                        'data-moviename' => $movie->name,
                         );
         $showtimeConteainer = $this->createElement('div', $attrs);
         $movieContainer->appendChild($showtimeConteainer);
