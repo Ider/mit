@@ -131,9 +131,11 @@ $displayer->show();
         }
 
         var wishshowtime = showtime.clone();
-        wishMovieContainer.append(wishshowtime);
         wishshowtime.css({top: 0});
-        wishshowtime.data('moviename', movieName);
+        wishshowtime = $('<div></div>')
+                        .data('moviename', movieName)
+                        .append(wishshowtime);
+        wishMovieContainer.append(wishshowtime);
 
         wishlist[identifier] = wishshowtime;
     });
@@ -157,11 +159,12 @@ var wishlistContainer = $('#wishlist_container');
     //         });
     wishMovieContainer.on('click', '.movie_showtime', function() {
         //move it to top
-        var showtime = $(this);
+        var showtime = $(this).parent();
         showtime.parent().append(showtime);
     });
 
     wishMovieContainer.on('mouseover', '.movie_showtime', function() {
+        var showtime = $(this);
         panel.showAt(this);
     });
 
