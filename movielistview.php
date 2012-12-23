@@ -62,7 +62,7 @@ $displayer->show();
     $('#none_script_style').remove();
     $('#wishlist_outter_container').show();
 
-    var config = {  arrow:{position:'middle', direction:'down', pointto:'middle', size: 10},
+    var config = {  arrow:{position:'middle', direction:'bottom', pointto:'middle', size: 10},
                     animate: {show: 'show', hide: 'hide'},
         },
         panel = $.tip('#movie_info_panel', config),

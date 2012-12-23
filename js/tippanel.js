@@ -12,8 +12,8 @@
             position: {head:0, middle:1, rear:2},
             direction: {
         /* direction:   [arrow-margin-segment, offset-relative-axi, showat-offset-multiplier] */
-                up:     ['bottom',  'left', +1],
-                down:   ['top',     'left', -1],
+                top:     ['bottom',  'left', +1],
+                bottom:   ['top',     'left', -1],
                 left:   ['right',   'top',  +1],
                 right:  ['left',    'top',  -1]
             },
@@ -21,7 +21,7 @@
         },
         defaultArrow: {
             position: 'middle',
-            direction: 'down',
+            direction: 'bottom',
             pointto: 'middle'
         },
         formatConfig: function(config, sets, defaults){
@@ -110,8 +110,10 @@
             this.arrow.inner = $('<div></div>').css(css).appendTo(this);
 
             // Generate arrow border if box has border
-            var borderwidth = parseInt(this.css('border-width'), 10),
-                bordercolor = this.css('border-color');
+            var brd = 'border-'+arrowConfig.direction,
+                borderwidth = parseInt(this.css(brd+'-width'), 10),
+                bordercolor = this.css(brd+'-color');
+            if (isNaN(borderwidth)) borderwidth = 0;
             if (arrowConfig.noborder || borderwidth <=0) return;
             ++borderwidth;//arrow border is tilted, make 1px giger to make nicer
             size += borderwidth;
