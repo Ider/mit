@@ -1,0 +1,164 @@
+.main_container {
+    width:900px;
+    margin: auto;
+}
+
+
+
+/********************* Theater View Style *********************/
+
+.theater_container {
+    width: 430px;
+    float: left;
+    min-height:120px;
+    max-height: 200px;
+    padding: 0 10px 10px;
+
+}
+
+.theater_container:nth-child(4n+1),
+.theater_container:nth-child(4n+4) {
+    background-color: #cdcdcd;
+}
+
+.theater_container:nth-child(4n+1) a,
+.theater_container:nth-child(4n+4) a {
+    /*color: blue;*/
+}
+
+
+/********************* Movie View Style *********************/
+
+
+.movie_list_outer_container {
+    overflow: hidden;
+    border:  1px solid red;
+}
+
+.showtime_container {
+    border: 1px dashed black;
+}
+
+.movie_title {
+    text-align: right;
+    margin-bottom: 0;
+    padding-right: 10px
+}
+
+.movie_showtime {
+    box-shadow: 3px 3px 3px #777777;
+    border-radius: 8px;
+}
+
+.movie_showtime:hover {
+    background-color: green !important;
+    z-index: 99;
+}
+
+.movie_showtime:active {
+    box-shadow: none;
+}
+
+
+.movie_info_panel {
+    position: absolute;
+    background: #2a75a9;
+    border: 2px solid #7EB5D6;
+    padding: 7px;
+    min-width: 100px;
+    min-height: 30px;
+    border-radius: 7px;
+    box-shadow: 3px 3px 3px #777777;
+    display: none;
+    text-align: center;
+    color: white;
+}
+
+.footer_placeholder {
+    height: 64px;
+}
+.wishlist_outter_container {
+    position: fixed;
+    bottom: 5px;
+    width: 98%;
+    height: 64px;
+    left: 1%; 
+    display: none;
+    /*z-index: 99;*/
+}
+.wish_zone {
+    margin: auto;
+    width: 900px;
+    height: 64px;
+    border: 1px solid blue;
+    background-color: white;
+    overflow: hidden;
+}
+
+#wish_movie_container {
+    border: 1px dashed black;
+}
+
+/********************* Search Form Style *********************/
+.search_container {
+    text-align: center;
+}
+.search_middle {
+    margin-top: 140px;
+}
+
+.search_submit {
+    font-size: 14px;
+    color: #ffffff;
+    padding: 10px 20px;
+    background: -moz-linear-gradient(top, #42aaff 0%, #003366); 
+    background: -webkit-linear-gradient(top, #42aaff 0%, #003366);
+    background: -o-linear-gradient(top, #42aaff 0%, #003366);
+    background: -ms-linear-gradient(top, #42aaff 0%, #003366);
+    background: -webkit-gradient(linear, left top, left bottom, from(#42aaff), to(#003366));
+    border-radius: 0 7px 7px 0;
+    border: 1px solid #003366;
+    margin: 0;
+    box-shadow: 0 1px 3px rgba(000,000,000,0.5), inset 0 0 1px rgba(255,255,255,0.5);
+    text-shadow: 0 2px 0 rgba(000,000,000,0.7), 0 1px 0 rgba(255,255,255,0.3);
+    font-weight: bold;
+    line-height: 17px;
+}
+
+.search_submit:hover {
+    text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.search_submit:active {
+    background: #003366;
+}
+.search_text {
+    font-size: 14px;
+    border: 1px solid #003366;
+    padding: 10px 20px;
+    margin: 0;
+    border-radius: 7px 0 0 7px;
+    text-align: center;
+    font-weight: bold;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
