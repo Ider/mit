@@ -1,4 +1,4 @@
-Let's Movie Movies
+Let's Movie Movie
 ===
 I am a movie lover, I go to theater to watch movies 2-3 times a month, so I want to find a way to schedule my movie watchting. Hence this project is coming out.   
 It virsually display showtims of movies in specified theater, but now it's only for 'today'. Pick up any showtime to add it to wish list.
