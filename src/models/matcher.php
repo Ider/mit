@@ -82,7 +82,7 @@ class StringMatcher {
      *         otherwise callback function result will be assigned to property
      *                                  
      * If no result find for that key, $obj property will be stay the same.
-     * @param  Dictionary   $patternList    regular expression patterns container
+     * @param  Array   $patternList    regular expression patterns container
      * @param  Object       $obj  the object that need to assign result to, if null. stdClass will be created
      * @return $obj           [description]
      */
