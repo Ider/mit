@@ -57,7 +57,7 @@ class GoogleTheatersFetcher extends TheatersFetcher {
             return;
         }
 
-        static $spliter = '<div class=showtime>';
+        static $spliter = '<div class=showtimes>';
         $count = count($arr);
         for ($i=0; $i < $count; $i++) { 
             $theaterCon = explode($spliter , $arr[$i]);
