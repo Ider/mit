@@ -5,11 +5,12 @@ class Theater {
     public $link = '';
     public $address = '';
     public $phone = '';
+    public $search_sign = '';
+    public $source = 'unknown';
 }
 
 class TheaterList {
     public $zipcode = '';
-    public $link = '';
     public $source = 'unknown';
     public $theaters = array();
 

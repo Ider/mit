@@ -28,9 +28,9 @@ abstract class MoviesFetcher {
     protected $movieList;
     protected $tid;
 
-    public function __construct($tid = '', DateTime $date = null) {
+    public function __construct($tid = '', $date = null) {
         $list = new MovieList();
-        $list->date = $date;
+        $list->showtime_date = $date;
         $this->movieList = $list;
         $this->tid = $tid;
     }

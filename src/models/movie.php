@@ -1,17 +1,21 @@
 <?php
 
-class Movie {    
+class Movie {
+    public $source = 'unknown';
     public $mid = '';
     public $name = '';
     public $link = '';
-    public $runtime = ''; 
+    public $imageURL = '';
+    public $runtime = '';
     public $showtimes = array();//times in 24h format
+    public $info = array(); //a dictionary that save other movie informations with key/value paire
+    public $_fromDB = false; //boolean if true, the data is from Database; if false, it need to add to database
 }
 
 
 class MovieList {
     public $theater = null; //should be instance of Theater
-    public $date = null;    //instance of DateTime
+    public $showtime_date = '';
     public $movies = array();
     public $source = 'unknown';
 

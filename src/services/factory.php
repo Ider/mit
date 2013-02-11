@@ -8,31 +8,31 @@ class FetcherFactory {
                     'cinemark' => false,
                         );
 
-    protected static $theaterFetchers 
+    protected static $theaterFetcherClasses 
             = array('google' => 'GoogleTheatersFetcher',
                     'cinemark' => null,
                         );
 
-    protected static $movieFetchers 
+    protected static $movieFetcherClasses 
             = array('google' => 'GoogleMoviesFetcher',
                     'cinemark' => null,
                         );
     public static function theaterListFetcher($zipcode, $source = 'google') {
-        if (!isset(self::$sources[$source]) || ! self::$sources[$source]) {
+        if (!isset(self::$sources[$source]) || !self::$sources[$source]) {
             $source = 'google';
         }
 
-        $fetcher = self::$theaterFetchers[$source];
-        return new $fetcher($zipcode);
+        $fetcherClass = self::$theaterFetcherClasses[$source];
+        return new $fetcherClass($zipcode);
     }
 
 
-    public static function movieListFetcher($tid, DateTime $date, $source = 'google') {
+    public static function movieListFetcher($tid, $date, $source = 'google') {
         if (!isset(self::$sources[$source]) || ! self::$sources[$source]) {
             $source = 'google';
         }
 
-        $fetcher = self::$movieFetchers[$source];
-        return new $fetcher($tid, $date);
+        $fetcherClass = self::$movieFetcherClasses[$source];
+        return new $fetcherClass($tid, $date);
     }
 }

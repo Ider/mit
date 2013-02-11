@@ -4,16 +4,16 @@ require_once 'src/models/matcher.php';
 
 class GoogleMovie {
     const URL = 'http://www.google.com/movies';
-    const SOURCE = 'Google';
+    const SOURCE = 'google';
 
     public static function theaterListContentURL($zipcode) {
         $url = self::URL;
         return "$url?near=$zipcode";
     }
 
-    public static function movieListContentURL($tid, DateTime $date = null) {
+    public static function movieListContentURL($tid, $date = null) {
         $url = self::URL;
-        if (!isset($date)) $date = new DateTime();
+        $date = new DateTime($date);
 
         //Google using day diff to determine showtime date and only give small date span
         $diff = $date->diff(new DateTime());
@@ -85,6 +85,7 @@ class GoogleTheatersFetcher extends TheatersFetcher {
         $matcher->execute($patternList, $theater);
 
         $theater->link = GoogleMovie::movieListContentURL($theater->tid);
+        $theater->source = GoogleMovie::SOURCE;
 
         return $theater;
     }
@@ -115,7 +116,7 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
     private $contents;
     private $theaterContent;
 
-    public function __construct($tid = '', DateTime $date) {
+    public function __construct($tid = '', $date) {
         parent::__construct($tid, $date);
         $this->initContents();        
         $this->movieList->source = GoogleMovie::SOURCE;
@@ -124,7 +125,7 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
     private function initContents() {
         $this->contents =array();
 
-        $date = $this->movieList->date;
+        $date = $this->movieList->showtime_date;
         $url = GoogleMovie::movieListContentURL($this->tid, $date);
         $con = file_get_contents($url);
 
