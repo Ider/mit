@@ -27,15 +27,13 @@ $source = '';
 if (isset($_GET['source'])) {
     $source = $_GET['source'];
 }
-
+$tid = '';
 if (isset($_GET['tid'])) {
     $tid = $_GET['tid'];
 }
-
+$date = DateUtil::dateNow();
 if (isset($_GET['date'])) {
-    $date = DateUtil::formatDate($_GET['date']);
-} else {
-    $date = DateUtil::datetimeNow();
+    $date = $_GET['date'];
 }
 
 $fetcher = FetcherFactory::movieListFetcher($tid, $date, $source);

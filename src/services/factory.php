@@ -1,5 +1,6 @@
 <?php
 include_once 'src/services/google/fetcher.php';
+include_once 'src/utilities/util.php';
 
 class FetcherFactory {
 
@@ -34,10 +35,16 @@ class FetcherFactory {
         return new $fetcherClass($zipcode);
     }
 
-
     public static function movieListFetcher($tid, $date, $source = 'google') {
         if (!isset(self::$sources[$source]) || ! self::$sources[$source]) {
             $source = 'google';
+        }
+        $date = DateUtil::formatDate($date);
+        //try to get data from database
+        $fetcher = new DBMoviesFetcher($tid, $date, $source);
+        if ($fetcher->hasDataReserved()) {
+            error_log('has data saved');
+            return $fetcher;
         }
 
         $fetcherClass = self::$movieFetcherClasses[$source];

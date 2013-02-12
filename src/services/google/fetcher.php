@@ -108,8 +108,7 @@ class GoogleTheatersFetcher extends TheatersFetcher {
 class GoogleMoviesFetcher extends MoviesFetcher  {
     /* inherited from MoviesFetcher
      *
-     * protected $movieList;    
-     * protected $tid;
+     * protected $movieList;
      * 
     **/
 
@@ -126,7 +125,8 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         $this->contents =array();
 
         $date = $this->movieList->showtime_date;
-        $url = GoogleMovie::movieListContentURL($this->tid, $date);
+        $tid = $this->movieList->tid;
+        $url = GoogleMovie::movieListContentURL($tid, $date);
         $con = file_get_contents($url);
 
         if ($con === false) {

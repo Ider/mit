@@ -14,6 +14,7 @@ class Movie {
 
 
 class MovieList {
+    public $tid = '';
     public $theater = null; //should be instance of Theater
     public $showtime_date = '';
     public $movies = array();
