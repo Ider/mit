@@ -200,7 +200,7 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         static $patternList = null;
         if ($patternList == null) {
             $patternList = array(
-                array('name', '>([^><]+?)</a>'),
+                array('name', '>([^><]+?)</a>', function($matches) { return html_entity_decode($matches[1]); }),
                 array('mid', 'mid=([a-z0-9]+)'),
                 array('runtime', '(\d+)hr (\d+)min', function($matches){ return $matches[1]*60+$matches[2]; }),
             );
