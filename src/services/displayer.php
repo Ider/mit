@@ -118,7 +118,7 @@ class TheaterListDisplayer extends DOMDisplayerBase{
         $this->layout->appendChild($mainContainer);
 
         if (count($this->theaterList->theaters) <= 0) {
-            $message = 'No Theaters found in zip area: '.$this->theaterList->zipcode;
+            $message = 'No Theaters found in area: '.$this->theaterList->area;
             $mainContainer->appendChild($this->noContentMessage($message));
             return  true;
         }

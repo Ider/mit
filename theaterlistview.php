@@ -16,10 +16,10 @@ if (isset($_GET['source'])) {
 }
 
 if (isset($_GET['zipcode'])) {
-    $zipcode = $_GET['zipcode'];
+    $area = $_GET['zipcode'];
 }
 
-$fetcher = FetcherFactory::theaterListFetcher($zipcode, $source);
+$fetcher = FetcherFactory::theaterListFetcher($area, $source);
 
 $list = $fetcher->theaterList();
 $displayer = new TheaterListDisplayer($list);

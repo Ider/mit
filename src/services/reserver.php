@@ -27,7 +27,7 @@ class DBReverser extends Reserver {
         $theaterValues = array();
 
         
-        $search_sign = $mysqli->real_escape_string($list->zipcode);
+        $search_sign = $mysqli->real_escape_string($list->area);
         $source = $mysqli->real_escape_string($list->source);
         $created_time = DateUtil::datetimeNow();
 
@@ -62,7 +62,7 @@ EOL;
         }
 
         $list = new TheaterList();
-        $list->zipcode = $theater->zipcode;
+        $list->area = $theater->search_sign;
         $list->source = $theater->source;
         $list->theaters = array($theater);
 

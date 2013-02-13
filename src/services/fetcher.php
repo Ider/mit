@@ -8,9 +8,9 @@ include_once 'src/services/factory.php';
 abstract class TheatersFetcher {
     protected $theaterList;
 
-    public function __construct($zipcode = '') {
+    public function __construct($area = '') {
         $this->theaterList = new TheaterList();
-        $this->theaterList->zipcode = $zipcode;
+        $this->theaterList->area = $area;
     }
 
     public function theaterList() {
@@ -27,7 +27,7 @@ abstract class TheatersFetcher {
     }
 
     /**
-     * Fetch a list of theaters infomation associated with the zipcode
+     * Fetch a list of theaters infomation associated with the area
      */
     abstract protected function fetchTheaters();
 }
@@ -77,8 +77,8 @@ class MysqlDB {
 class DBTheaterFetcher extends TheatersFetcher{
     public $search_source = '';
     
-    public function __construct($zipcode, $source) {
-        parent::__construct($zipcode);
+    public function __construct($area, $source) {
+        parent::__construct($area);
         $this->theaterList->source = MysqlDB::SOURCE;
         $this->search_source = $source;
         //fetch theaters immediately to prevent fetching from super class
@@ -89,7 +89,7 @@ class DBTheaterFetcher extends TheatersFetcher{
     protected function fetchTheaters() {
         $orm = new MysqlORM('Theater');
         $mysqli = $orm->mysqli();
-        $search_sign = $mysqli->real_escape_string($this->theaterList->zipcode);
+        $search_sign = $mysqli->real_escape_string($this->theaterList->area);
         $source = $mysqli->real_escape_string($this->search_source);
         $query = <<<EOL
 SELECT search_sign, source, tid, name, link, address, phone

@@ -10,7 +10,7 @@ class Theater {
 }
 
 class TheaterList {
-    public $zipcode = '';
+    public $area = '';
     public $source = 'unknown';
     public $theaters = array();
 

@@ -6,9 +6,9 @@ class GoogleMovie {
     const URL = 'http://www.google.com/movies';
     const SOURCE = 'google';
 
-    public static function theaterListContentURL($zipcode) {
+    public static function theaterListContentURL($area) {
         $url = self::URL;
-        return "$url?near=$zipcode";
+        return "$url?near=usa+$area";
     }
 
     public static function movieListContentURL($tid, $date = null) {
@@ -31,8 +31,8 @@ class GoogleMovie {
 class GoogleTheatersFetcher extends TheatersFetcher {
     private $contents;
 
-    public function __construct($zipcode) {
-        parent::__construct($zipcode);
+    public function __construct($area) {
+        parent::__construct($area);
         $this->initContents();
         $this->theaterList->source = GoogleMovie::SOURCE;
 
@@ -41,8 +41,8 @@ class GoogleTheatersFetcher extends TheatersFetcher {
     private function initContents() {
         $this->contents = array();
 
-        $zipcode = $this->theaterList->zipcode;
-        $url = GoogleMovie::theaterListContentURL($zipcode);
+        $area = $this->theaterList->area;
+        $url = GoogleMovie::theaterListContentURL($area);
         $con = file_get_contents($url);
         if ($con === false) {
             //TODO: log error here
@@ -129,6 +129,7 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         $url = GoogleMovie::movieListContentURL($tid, $date);
         $con = file_get_contents($url);
 
+echo $url;
         if ($con === false) {
             //TODO: log error here
             return;

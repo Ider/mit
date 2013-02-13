@@ -18,12 +18,12 @@ class FetcherFactory {
             = array('google' => 'GoogleMoviesFetcher',
                     'cinemark' => null,
                         );
-    public static function theaterListFetcher($zipcode, $source = 'google') {
+    public static function theaterListFetcher($area, $source = 'google') {
         $source = self::formatSource($source);
 
         //try to get data from database
         if (ENABLE_RESERVATION) {
-            $fetcher = new DBTheaterFetcher($zipcode, $source);
+            $fetcher = new DBTheaterFetcher($area, $source);
             if ($fetcher->hasDataReserved()) {
                 error_log('has data saved');
                 return $fetcher;
@@ -32,7 +32,7 @@ class FetcherFactory {
 
         //no data saved in database, fetche data from source
         $fetcherClass = self::$theaterFetcherClasses[$source];
-        return new $fetcherClass($zipcode);
+        return new $fetcherClass($area);
     }
 
     public static function movieListFetcher($tid, $date, $source = 'google') {
