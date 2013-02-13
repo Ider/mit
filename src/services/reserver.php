@@ -73,52 +73,58 @@ EOL;
      * @param  MovieList $list a list that contains movies with showtime in certain theater
      */
     public function reserveMovieList(MovieList $list) {
-        $query4movie = <<<EOL
-INSERT INTO movies(source, mid, name, link, imageURL, runtime, info)
-    VALUES(?, ?, ?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE source = source
-EOL;
-        $mysqli4movie = DBConnector::getMysqli();
-        $stm4movie = $mysqli4movie->prepare($query4movie);
-        $stm4movie->bind_param('sssssis', $source, $mid, $name, $link, $imageURL, $runtime, $info);
+        $mysqli = DBConnector::getMysqli();
+        
+        $source = $mysqli->real_escape_string($list->source);
+        $tid = $mysqli->real_escape_string($list->tid);
+        $showtime_date = $mysqli->real_escape_string($list->showtime_date);
 
-        $query4showtime = <<<EOL
-INSERT INTO showtimes(source, tid, mid, showtime_date, showtimes)
-    VALUES(?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE source = source
-EOL;
-    
-        $mysqli4showtime = DBConnector::getMysqli();
-        $stm4showtime = $mysqli4showtime->prepare($query4showtime);
-        $stm4showtime->bind_param('sssss', $source, $tid, $mid, $showtime_date, $showtimes);
-        $source = $list->source;
-        $tid = $list->tid;
-        $showtime_date = $list->showtime_date;
+        $movieValues = array();
+        $shotimeValues = array();
 
         $movies = $list->movies;
         foreach ($movies as $movie) {
-            //reserve movie showtimes
-            $mid = $movie->mid;
-            $showtimes = json_encode($movie->showtimes);
-            $stm4showtime->execute();
+            $mid = $mysqli->real_escape_string($movie->mid);
+            $name = $mysqli->real_escape_string($movie->name);
+            $link = $mysqli->real_escape_string($movie->link);
+            $imageURL = $mysqli->real_escape_string($movie->imageURL);
+            $runtime = intval($movie->runtime);
+            $info = $mysqli->real_escape_string(json_encode($movie->info));
 
-            if ($movie->_fromDB) {
+            $movieValues[] = "('$source', '$mid', '$name', '$link', '$imageURL', $runtime, '$info')";
+
+            if (empty($movie->showtimes)) {
                 continue;
             }
 
-            //reserve movie information
-            $name = $movie->name;
-            $link = $movie->link;
-            $imageURL = $movie->imageURL;
-            $runtime = $movie->runtime;
-            $info = json_encode($movie->info);
-            $stm4movie->execute();
+            $showtimes = $mysqli->real_escape_string(json_encode($movie->showtimes));
+
+            $shotimeValues[] = "('$source', '$tid', '$mid', '$showtime_date', '$showtimes')";
+
         }
 
-        $stm4movie->close();
-        $mysqli4movie->close();
-        $stm4showtime->close();
-        $mysqli4showtime->close();
+        if (!empty($movieValues)) {
+            $moviesValue = implode(',', $movieValues);
+            $query4movie = <<<EOL
+INSERT INTO movies(source, mid, name, link, imageURL, runtime, info)
+    VALUES $moviesValue
+    ON DUPLICATE KEY UPDATE source = source
+EOL;
+            $mysqli->query($query4movie);
+        }
+
+        if (!empty($shotimeValues)) {
+            $showtimesValue = implode(',', $shotimeValues);
+
+            $query4showtime = <<<EOL
+INSERT INTO showtimes(source, tid, mid, showtime_date, showtimes)
+    VALUES $showtimesValue
+    ON DUPLICATE KEY UPDATE source = source
+EOL;
+
+            $mysqli->query($query4showtime);
+        }
+        $mysqli->close();
     }
 
     /**
