@@ -12,15 +12,10 @@ abstract class Reserver {
     abstract public function reserveMovie(Movie $movie);
 }
 
-
+/**
+ * DBReverser reserve all
+ */
 class DBReverser extends Reserver {
-    private static $_instatnce;
-    public static function instance() {
-        if (!self::$_instatnce) {
-            self::$_instatnce = new DBReverser();
-        }
-        return self::$_instatnce;
-    }
 
     public function reserveTheaterList(TheaterList $list) {
         if (!$list || empty($list->theaters)) {
@@ -166,3 +161,15 @@ EOL;
         $mysqli->close();
     }
 }
+
+/**
+ * BogusReserver, it is uesed when local reservation is disabled
+ *        all inherited reserving methods are doing nothing
+ */
+class BogusReserver extends Reserver {
+    public function reserveTheaterList(TheaterList $list) {}
+    public function reserveTheater(Theater $theater) {}
+    public function reserveMovieList(MovieList $list) {}
+    public function reserveMovie(Movie $movie) {}
+}
+

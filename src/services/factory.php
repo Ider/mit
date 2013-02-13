@@ -19,15 +19,15 @@ class FetcherFactory {
                     'cinemark' => null,
                         );
     public static function theaterListFetcher($zipcode, $source = 'google') {
-        if (!isset(self::$sources[$source]) || !self::$sources[$source]) {
-            $source = 'google';
-        }
+        $source = self::formatSource($source);
 
         //try to get data from database
-        $fetcher = new DBTheaterFetcher($zipcode, $source);
-        if ($fetcher->hasDataReserved()) {
-            error_log('has data saved');
-            return $fetcher;
+        if (ENABLE_RESERVATION) {
+            $fetcher = new DBTheaterFetcher($zipcode, $source);
+            if ($fetcher->hasDataReserved()) {
+                error_log('has data saved');
+                return $fetcher;
+            }
         }
 
         //no data saved in database, fetche data from source
@@ -36,18 +36,50 @@ class FetcherFactory {
     }
 
     public static function movieListFetcher($tid, $date, $source = 'google') {
-        if (!isset(self::$sources[$source]) || ! self::$sources[$source]) {
-            $source = 'google';
-        }
+        $source = self::formatSource($source);
         $date = DateUtil::formatDate($date);
+
         //try to get data from database
-        $fetcher = new DBMoviesFetcher($tid, $date, $source);
-        if ($fetcher->hasDataReserved()) {
-            error_log('has data saved');
-            return $fetcher;
+        if (ENABLE_RESERVATION) {
+            $fetcher = new DBMoviesFetcher($tid, $date, $source);
+            if ($fetcher->hasDataReserved()) {
+                error_log('has data saved');
+                return $fetcher;
+            }
         }
 
         $fetcherClass = self::$movieFetcherClasses[$source];
         return new $fetcherClass($tid, $date);
     }
+
+    protected static function formatSource($source) {
+        $source = strtolower($source);
+        if (!isset(self::$sources[$source]) || !self::$sources[$source]) {
+            $source = 'google';
+        }
+
+        return $source;
+    }
+}
+
+class ReserverFactory {
+    protected static $reservers = array();
+    
+    public static function reserver() {
+        $reserverClassName = 'BogusReserver';
+        if (ENABLE_RESERVATION) {
+            $reserverClassName = 'DBReverser';
+        } 
+
+        return self::getReserver($reserverClassName);
+    }
+
+    protected static function getReserver($className) {
+        if (!isset(self::$reservers[$className])) {
+            self::$reservers[$className] = new $className();
+        }
+
+        return self::$reservers[$className];
+    }   
+
 }

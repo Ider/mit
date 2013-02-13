@@ -3,6 +3,7 @@ include_once 'src/models/theater.php';
 include_once 'src/models/movie.php';
 include_once 'src/models/orm.php';
 include_once 'src/services/reserver.php';
+include_once 'src/services/factory.php';
 
 abstract class TheatersFetcher {
     protected $theaterList;
@@ -18,7 +19,7 @@ abstract class TheatersFetcher {
 
             //reserve theater data to database,
             //if do not want this happen, update $this->theaterList->theaters in __construct 
-            $reserver = DBReverser::instance();
+            $reserver = ReserverFactory::reserver();
             $reserver->reserveTheaterList($this->theaterList);
         }
 
@@ -46,7 +47,7 @@ abstract class MoviesFetcher {
             $this->movieList->theater = $this->fetchTheater();
             $this->movieList->movies = $this->fetchTheaterMovies();
 
-            $reserver = DBReverser::instance();
+            $reserver = ReserverFactory::reserver();
             $reserver->reserveMovieList($this->movieList);
         }
 
