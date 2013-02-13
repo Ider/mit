@@ -27,31 +27,37 @@ class DBReverser extends Reserver {
             return;
         }
 
-        $query = <<<EOL
-INSERT INTO theaters (search_sign, source, tid, name, link, address, phone, created_time)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    
-EOL;
         $mysqli = DBConnector::getMysqli();
-        $stm = $mysqli->prepare($query);
 
-        $stm->bind_param('ssssssss', $search_sign, $source, $tid, $name, $link, $address, $phone, $created_time);
+        $theaterValues = array();
+
         
-        $source = $list->source;
-        $search_sign = $list->zipcode;
+        $search_sign = $mysqli->real_escape_string($list->zipcode);
+        $source = $mysqli->real_escape_string($list->source);
         $created_time = DateUtil::datetimeNow();
-        $theaters = $list->theaters;
 
+        $theaters = $list->theaters;
         foreach ($theaters as $theater) {
-            $tid = $theater->tid;
-            $name = $theater->name;
-            $link = $theater->link;
-            $address = $theater->address;
-            $phone = $theater->phone;
-            $stm->execute();
+            $tid = $mysqli->real_escape_string($theater->tid);
+            $name = $mysqli->real_escape_string($theater->name);
+            $link = $mysqli->real_escape_string($theater->link);
+            $address = $mysqli->real_escape_string($theater->address);
+            $phone = $mysqli->real_escape_string($theater->phone);
+
+            $theaterValues[] = "('$search_sign', '$source', '$tid', '$name', '$link', '$address', '$phone', '$created_time')";
         }
 
-        $stm->close();
+        if (!empty($theaterValues)) {
+            $theatersValue = implode(',', $theaterValues);
+            $query = <<<EOL
+INSERT INTO theaters (search_sign, source, tid, name, link, address, phone, created_time)
+    VALUES $theatersValue
+        ON DUPLICATE KEY UPDATE source = source
+EOL;
+            
+            $mysqli->query($query);
+        }
+
         $mysqli->close();
     }
 
