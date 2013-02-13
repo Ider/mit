@@ -1,6 +1,8 @@
 <?php
 include_once 'src/models/theater.php';
 include_once 'src/models/movie.php';
+include_once 'src/models/orm.php';
+include_once 'src/services/reserver.php';
 
 abstract class TheatersFetcher {
     protected $theaterList;
@@ -13,6 +15,11 @@ abstract class TheatersFetcher {
     public function theaterList() {
         if (empty($this->theaterList->theaters)) {
             $this->theaterList->theaters = $this->fetchTheaters();
+
+            //reserve theater data to database,
+            //if do not want this happen, update $this->theaterList->theaters in __construct 
+            $reserver = new DBReverser();
+            $reserver->reserveTheaterList($this->theaterList);
         }
 
         return $this->theaterList;
@@ -56,3 +63,57 @@ abstract class MoviesFetcher {
      */
     abstract protected function fetchTheaterMovies();
 }
+
+
+/********************* Database Fetcher *********************/
+
+class MysqlDB {
+    const SOURCE = 'mysql';
+}
+
+class DBTheaterFetcher extends TheatersFetcher{
+    public $search_source = '';
+    public function __construct($zipcode, $source) {
+        parent::__construct($zipcode);
+        $this->theaterList->source = MysqlDB::SOURCE;
+        $this->search_source = $source;
+        //fetch theaters immediately to prevent fetching from super class
+        //and readd to database
+        $this->theaterList->theaters = $this->fetchTheaters();
+    }
+
+    protected function fetchTheaters() {
+        $orm = new MysqlORM('Theater');
+        $mysqli = $orm->mysqli();
+        $search_sign = $mysqli->real_escape_string($this->theaterList->zipcode);
+        $search_source = $mysqli->real_escape_string($this->search_source);
+        $query = <<<EOL
+SELECT search_sign, source, tid, name, link, address, phone, created_time
+    FROM theaters
+    WHERE search_sign = '$search_sign' AND source = '$search_source'
+EOL;
+        $theaters = $orm->mapArray($query);
+        $orm->close();
+        return $theaters;
+    }
+
+    public function hasDataReserved() {
+        return !empty($this->theaterList->theaters);
+    }
+}
+
+class DBMoviesFetcher extends MoviesFetcher{
+    protected function fetchTheater() {
+        return null;
+    }
+
+    protected function fetchTheaterMovies() {
+
+    }
+
+    public function hasDataReserved() {
+        return !empty($this->movieList->movies);
+    }
+}
+
+

@@ -22,6 +22,14 @@ class FetcherFactory {
             $source = 'google';
         }
 
+        //try to get data from database
+        $fetcher = new DBTheaterFetcher($zipcode, $source);
+        if ($fetcher->hasDataReserved()) {
+            error_log('has data saved');
+            return $fetcher;
+        }
+
+        //no data saved in database, fetche data from source
         $fetcherClass = self::$theaterFetcherClasses[$source];
         return new $fetcherClass($zipcode);
     }
