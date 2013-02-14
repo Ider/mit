@@ -129,7 +129,6 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         $url = GoogleMovie::movieListContentURL($tid, $date);
         $con = file_get_contents($url);
 
-echo $url;
         if ($con === false) {
             //TODO: log error here
             return;

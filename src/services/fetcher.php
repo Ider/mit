@@ -155,12 +155,12 @@ SELECT m.source, m.mid, m.name, m.link, m.imageURL, m.runtime, m.info, s.showtim
         AND s.source = '$source'
 EOL;
         $movies = $orm->mapArray($query);
-        $movies = array();
+
         // json decode movie showtimes to array
         // and movie info to dictionary
         foreach ($movies as $movie) {
-            $movie->showtimes = json_decode($movie->showtimes);
-            $movie->info = json_decode($movie->info);
+            $movie->showtimes = json_decode($movie->showtimes, true);
+            $movie->info = json_decode($movie->info, true);
         }
 
         $orm->close();
