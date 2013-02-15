@@ -3,12 +3,17 @@ require_once 'src/services/fetcher.php';
 require_once 'src/models/matcher.php';
 
 class GoogleMovie {
-    const URL = 'http://www.google.com/movies';
+    const URL = 'http://www.google.com/movies?near=usa';
     const SOURCE = 'google';
 
     public static function theaterListContentURL($area) {
         $url = self::URL;
-        return "$url?near=usa+$area";
+        return "$url+$area";
+    }
+
+    public static function theaterLink($tid) {
+        $url = self::URL;
+        return "$url&tid=$tid";
     }
 
     public static function movieListContentURL($tid, $date = null) {
@@ -19,12 +24,12 @@ class GoogleMovie {
         $diff = $date->diff(new DateTime());
         $day = $diff->d;
 
-        return "$url?near=usa&tid=$tid&date=$day";
+        return "$url&tid=$tid&date=$day";
     }
 
-    public static function movieContentURL($mid) {
+    public static function movieLink($mid) {
         $url = self::URL;
-        return "$url?mid=$mid";
+        return "$url&mid=$mid";
     }
 }
 
@@ -72,6 +77,10 @@ class GoogleTheatersFetcher extends TheatersFetcher {
         foreach ($this->contents as $content) {
             $theater = self::fetchTheater($content);
             if ($theater == null) continue;
+
+            $theater->link = GoogleMovie::theaterLink($theater->tid);
+            $theater->source = GoogleMovie::SOURCE;
+
             $theaters[] = $theater;
         }
         return $theaters;
@@ -83,9 +92,6 @@ class GoogleTheatersFetcher extends TheatersFetcher {
         $patternList = self::theaterMatchingPatternList();
 
         $matcher->execute($patternList, $theater);
-
-        $theater->link = GoogleMovie::movieListContentURL($theater->tid);
-        $theater->source = GoogleMovie::SOURCE;
 
         return $theater;
     }
@@ -156,6 +162,9 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         foreach ($this->contents as $content) {
             $movie = self::fetchMovie($content);
             if ($movie == null) continue;
+            $movie->link = GoogleMovie::movieLink($movie->mid);
+            $movie->source = GoogleMovie::SOURCE;
+
             $movies[] = $movie;
         }
         return $movies;
@@ -167,8 +176,6 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         $patternList = self::movieMatchingPatternList();
 
         $matcher->execute($patternList, $movie);
-
-        $movie->link = GoogleMovie::movieContentURL($movie->mid);
 
         $showtimePattern = '(\d+):(\d+)(am|pm)?&';
         $matches = $matcher->match($showtimePattern, true);
@@ -191,9 +198,8 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         }
         
         $movie->showtimes = array_reverse($showtimes);
-
+        
         return $movie;
-
     }
 
     protected static function movieMatchingPatternList() {
