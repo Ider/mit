@@ -13,6 +13,13 @@ abstract class RegexMatcher {
     private $modifierFlag = 0;
     protected $matches = array();
 
+    /**
+     * Call php system preg_match_all() if $all is true, or preg_match() if $all is false
+     * @param  String  $pattern, regular expression pattern that going to apply on $str
+     * @param  String  $str, string that patten looking on
+     * @param  Bool    $all, indicate whether reutrn
+     * @return int     matches count  
+     */
     protected function regexMatch($pattern, $str, $all = false) {
         if ($all) {
             $count = preg_match_all($pattern, $str, $this->matches, PREG_SET_ORDER);
@@ -29,15 +36,14 @@ abstract class RegexMatcher {
     }
 
     /**
-     * Escape delimiter with setted one, and append delimiter and modifier with pattern
+     * Escape predefined delimiters in the pattern, and append delimiters round pattern
      * @param String $pattern original pattern content
-     * @return String pattren with delimiter and modifier around it
+     * @return String pattren with delimiters around it
      */
     protected function delimit($pattern) {
         $d = self::$delimiter;
-        $m = $this->modifier; //modifier
 
-        $p = $d.str_replace($d, '\\'.$d, $pattern).$d.$m;
+        $p = $d.str_replace($d, '\\'.$d, $pattern).$d;
         return $p;
     }
 
@@ -59,6 +65,8 @@ abstract class RegexMatcher {
     protected function updateModifer() {
 
     }
+
+    abstract public function toString();
 }
 
 /**
@@ -74,7 +82,7 @@ class StringMatcher extends RegexMatcher {
     ///////Properties///////
     
     /**
-     * Determin if need to append delimiter arround pattern or user add them 
+     * Determin if need to append delimiters arround pattern or user add them 
      * @param boolean $bool if specified, set autoDelimit with this new value
      * @return boolean autoDelimit value
      */
@@ -99,16 +107,19 @@ class StringMatcher extends RegexMatcher {
      * if error occurs, empty array will be returned but mathced result would not be 
      * overrided.
      * @param String $pattern, regular expression that going to apply on string,
-     *                         if autoDelimit is set to true, delimiter will be append
+     *                         if autoDelimit is set to true, delimiters will be append
      *                         around pattern, otherwise it suppose the pattern contains
-     *                         delimiter
+     *                         delimiters
      * @param Bool $all, match all results or just first one
      * @return Array 
      */
     public function match($pattern = null, $all = false) {
         if (!isset($pattern)) return $this->matches;
 
-        if ($this->autoDelimit) $pattern = $this->delimit((string)$pattern);
+        if ($this->autoDelimit) {
+            //append delimiters and movifier around pattern
+            $pattern = $this->delimit((string)$pattern).$this->modifier;
+        }
 
         $result = $this->regexMatch($pattern, $this->str, $all);
         if (!$result) return array();
@@ -149,6 +160,13 @@ class StringMatcher extends RegexMatcher {
         }
         return $obj;
     }
+
+    /**
+     * @return String return saved string
+     */
+    public function toString() {
+        return $this->str;
+    }
 }
 
 
@@ -184,6 +202,13 @@ class PatternMatcher extends RegexMatcher {
         
         if (!$result) return array();   
         return $this->matches;
+    }    
+
+    /**
+     * @return String return saved pattern with predefined delimiters around it
+     */
+    public function toString() {
+        return $this->pattern;
     }
 }
 
