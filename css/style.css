@@ -42,7 +42,12 @@
 .movie_title {
     text-align: right;
     margin-bottom: 0;
-    padding-right: 10px
+    padding-right: 10px;
+    vertical-align: top;
+}
+
+.movie_thumnail {
+    margin-left: 20px;
 }
 
 .movie_showtime {

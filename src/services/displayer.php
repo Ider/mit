@@ -52,24 +52,19 @@ abstract class DOMDisplayerBase extends DisplayerBase {
      */
     public function createTextNode($text, $parent = null) {
         $textNode = $this->layout->createTextNode($text);
-        if (!isset($parent)) return $textNode;
 
-        if (!($parent instanceof DOMNode)) {
-            $parent = $this->createElement($parent);
-        }
-
-        $parent->appendChild($textNode);
-        return $parent;
+        $node = $this->wrapChildNode($textNode, $parent);
+        return $node;
     }
 
     /**
-     * Create a LinkNode
+     * Create a DOMNode for link
      * @param  String $text       LinkNode content value
      * @param  String $link       value for property 'href'
      * @param  Dictionary  $attributes      other attributes informations
      * @param  DOMNode $parent    optional, parentNode that link node append to,
      *                                      if $parent is String, then DOMElement will be created with that as tag 
-     * @return DOMElement         
+     * @return DOMElement with "a" as tag name       
      */
     public function createLinkNode($text, $link, $attributes = array(), $parent = null) {
         $linkNode = $this->createTextNode($text, 'a');
@@ -80,14 +75,49 @@ abstract class DOMDisplayerBase extends DisplayerBase {
                 $linkNode->setAttribute($key, $value);
             }
         }
+
+        $node = $this->wrapChildNode($linkNode, $parent);
+        return $node;
+    }
+
+    /**
+     * Create a DOMNode image
+     * @param  String $src image source url
+     * @param  String $alt alt information on image
+     * @return DOMElement with "img" as tag name
+     */
+    public function createImageNode($src, $alt = '') {
+        $attributes = array(
+                'src' => (string)$src,
+                'alt' => (string)$alt,
+            );
         
-        if (!isset($parent)) return $linkNode;
-        
+        $imgNode = $this->createElement('img', $attributes);
+        return $imgNode;
+    }
+
+    /////// Auxiliary Methods ///////
+
+    /**
+     * Append child node to parent node. 
+     *     If $parent is empty string or null, $childNode returned directly;
+     *     if $childNode is null, this funciton is the same as createElement
+     * @param  DOMNode $childNode   node that going to be wrapped with $parent
+     * @param  $parent              a string indicate tag name, or DOMNode object; 
+     *                              if it is string, new DOMNode will be created with $parent as tag name  
+     * @return parent node that contain $childNode
+     */
+    public function wrapChildNode(DOMNode $childNode = null, $parent = null) {
+        if (empty($parent)) return $childNode;
+
         if (!($parent instanceof DOMNode)) {
             $parent = $this->createElement($parent);
         }
         
-        $parent->appendChild($linkNode);
+        if (isset($childNode)) {
+            $parent->appendChild($childNode);
+        }
+        
         return $parent;
     }
 
@@ -238,6 +268,10 @@ class MovieListDisplayer extends DOMDisplayerBase{
         $movieName = $this->createTextNode($movie->name, 'h3');
         $movieContainer->appendChild($movieName);
         $movieName->setAttribute('class', 'movie_title');
+
+        $movieImage = $this->createImageNode($movie->imageURL, '');
+        $movieName->appendChild($movieImage);
+        $movieImage->setAttribute('class', 'movie_thumnail');
 
         $movieLink = $this->createLinkNode('Movie Link', $movie->link, array('target'=>'_blank'), 'div');
         // $movieContainer->appendChild($movieLink);
