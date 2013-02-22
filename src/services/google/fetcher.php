@@ -128,7 +128,7 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
     }
 
     private function initContents() {
-        $this->contents =array();
+        $this->contents = array();
 
         $date = $this->movieList->showtime_date;
         $tid = $this->movieList->tid;
@@ -167,7 +167,38 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
 
             $movies[] = $movie;
         }
+
+        $this->fetchExtraInfo($movies);
+
         return $movies;
+    }
+
+    protected function fetchExtraInfo($movies) {
+        // error_log(is_array($movies));
+        // var_dump(count($movies));
+        foreach ($movies as $movie) {
+            $this->fetchExtraMovieInfo($movie);
+        }
+    }
+
+    protected function fetchExtraMovieInfo($movie) {
+        static $matcher = null;
+        static $tid = '';
+        if ($matcher == null) {
+            $matcher = new PatternMatcher('<img src="(//ssl.+?)"');
+            $tid = '&tid='. $this->movieList->theater->tid;
+        }
+
+        //google movie will look for the place to determiter the movie is show in that area
+        //or not, hence $tid is append to specify the area, otherwise movie page cannot be load
+        $mLink = $movie->link.$tid;
+        $con = file_get_contents($mLink);
+        $matches = $matcher->match($con);
+        if (empty($matches)) {
+            error_log('Cannot find movie thumbnail image');
+            return;
+        }
+        $movie->imageURL = 'http:'.$matches[1];
     }
 
     public static function fetchMovie($content) {
