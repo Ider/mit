@@ -7,17 +7,17 @@ class GoogleMovie {
     const SOURCE = 'google';
 
     public static function theaterListContentURL($area) {
-        $url = self::URL;
+        $url = static::URL;
         return "$url+$area";
     }
 
     public static function theaterLink($tid) {
-        $url = self::URL;
+        $url = static::URL;
         return "$url&tid=$tid";
     }
 
     public static function movieListContentURL($tid, $date = null) {
-        $url = self::URL;
+        $url = static::URL;
         $date = new DateTime($date);
 
         //Google using day diff to determine showtime date and only give small date span
@@ -28,26 +28,31 @@ class GoogleMovie {
     }
 
     public static function movieLink($mid) {
-        $url = self::URL;
+        $url = static::URL;
         return "$url&mid=$mid";
     }
 }
 
 class GoogleTheatersFetcher extends TheatersFetcher {
-    private $contents;
+    protected $contents;
 
     public function __construct($area) {
         parent::__construct($area);
         $this->initContents();
         $this->theaterList->source = GoogleMovie::SOURCE;
-
+    }
+    
+    protected static function configClass() {
+        return 'GoogleMovie';
     }
 
-    private function initContents() {
+    protected function initContents() {
         $this->contents = array();
+        $config = static::configClass();
 
         $area = $this->theaterList->area;
-        $url = GoogleMovie::theaterListContentURL($area);
+
+        $url = $config::theaterListContentURL($area);
         $con = file_get_contents($url);
         if ($con === false) {
             //TODO: log error here
@@ -74,12 +79,14 @@ class GoogleTheatersFetcher extends TheatersFetcher {
 
     public function fetchTheaters() {
         $theaters = array();
+        $config = static::configClass();
+
         foreach ($this->contents as $content) {
-            $theater = self::fetchTheater($content);
+            $theater = static::fetchTheater($content);
             if ($theater == null) continue;
 
-            $theater->link = GoogleMovie::theaterLink($theater->tid);
-            $theater->source = GoogleMovie::SOURCE;
+            $theater->link = $config::theaterLink($theater->tid);
+            $theater->source = $config::SOURCE;
 
             $theaters[] = $theater;
         }
@@ -89,7 +96,7 @@ class GoogleTheatersFetcher extends TheatersFetcher {
     public static function fetchTheater($content) {
         $theater = new Theater();
         $matcher = new StringMatcher($content);
-        $patternList = self::theaterMatchingPatternList();
+        $patternList = static::theaterMatchingPatternList();
 
         $matcher->execute($patternList, $theater);
 
@@ -118,8 +125,8 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
      * 
     **/
 
-    private $contents;
-    private $theaterContent;
+    protected $contents;
+    protected $theaterContent;
 
     public function __construct($tid = '', $date) {
         parent::__construct($tid, $date);
@@ -127,12 +134,17 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         $this->movieList->source = GoogleMovie::SOURCE;
     }
 
-    private function initContents() {
-        $this->contents = array();
+    protected static function configClass() {
+        return 'GoogleMovie';
+    }
 
+    protected function initContents() {
+        $this->contents = array();
+        $config = static::configClass();
+        
         $date = $this->movieList->showtime_date;
         $tid = $this->movieList->tid;
-        $url = GoogleMovie::movieListContentURL($tid, $date);
+        $url = $config::movieListContentURL($tid, $date);
         $con = file_get_contents($url);
 
         if ($con === false) {
@@ -159,11 +171,12 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
 
     public function fetchTheaterMovies() {
         $movies = array();
+        $config = static::configClass();
         foreach ($this->contents as $content) {
-            $movie = self::fetchMovie($content);
+            $movie = static::fetchMovie($content);
             if ($movie == null) continue;
-            $movie->link = GoogleMovie::movieLink($movie->mid);
-            $movie->source = GoogleMovie::SOURCE;
+            $movie->link = $config::movieLink($movie->mid);
+            $movie->source = $config::SOURCE;
 
             $movies[] = $movie;
         }
@@ -204,7 +217,7 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
     public static function fetchMovie($content) {
         $movie = new Movie();
         $matcher = new StringMatcher($content);
-        $patternList = self::movieMatchingPatternList();
+        $patternList = static::movieMatchingPatternList();
 
         $matcher->execute($patternList, $movie);
 
