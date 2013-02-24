@@ -9,7 +9,38 @@ class Movie {
     public $runtime = '';
     public $showtimes = array();//times in 24h format
     public $info = array(); //a dictionary that save other movie informations with key/value paire
-    public $_fromDB = false; //boolean if true, the data is from Database; if false, it need to add to database
+
+    /**
+     * Assign other $movie to this object, assign each information to 
+     * @param  Movie  $movie other movie object
+     * @return $this object
+     */
+    public function assignMovie(Movie $movie) {
+        foreach ($movie as $key => $value) {
+            $this->$key = $value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Assign any object to $movie with matched properties, this is very useful to change stdClass
+     * from json_decode to real Movie object.
+     * @param  $obj [description]
+     * @return 
+     */
+    public function assignObject($obj) {
+        foreach ($obj as $key => $value) {
+            if (!isset($this->$key)) continue;
+
+            if (gettype($value) == gettype($this->$key)) {
+                $this->$key = $value;
+            }
+            //else //sliently ignore the values that type is not match
+        }
+        
+        return $this;
+    }
 }
 
 

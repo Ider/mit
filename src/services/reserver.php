@@ -129,14 +129,10 @@ EOL;
     }
 
     /**
-     * Reserve movie infomation without showtimes, if the movie->_fromDB is true, do nothing.
+     * Reserve movie infomation without showtimes.
      * @param  Movie  $movie
      */
     public function reserveMovie(Movie $movie) {
-        if ($movie->_fromDB) {
-            return;
-        }
-
         $query = <<<EOL
 INSERT INTO movies(source, mid, name, link, imageURL, runtime, info)
     VALUES(?, ?, ?, ?, ?, ?, ?)
