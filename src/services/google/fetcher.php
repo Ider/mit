@@ -130,8 +130,8 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
 
     public function __construct($tid = '', $date) {
         parent::__construct($tid, $date);
-        $this->initContents();        
         $this->movieList->source = GoogleMovie::SOURCE;
+        $this->initContents();        
     }
 
     protected static function configClass() {
@@ -187,12 +187,57 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
     }
 
     protected function fetchExtraInfo($movies) {
-        // error_log(is_array($movies));
-        // var_dump(count($movies));
-        foreach ($movies as $movie) {
+        if (empty($movies)) return $movies;
+        
+        $notFoundMovies = $this->fetchReservedMovies($movies);
+
+        foreach ($notFoundMovies as $movie) {
             $this->fetchExtraMovieInfo($movie);
         }
     }
+
+    /**
+     * Try to load $movies information from database first
+     * @param  Array $movies orignal movies
+     * @return Array of movies that are not found in Database
+     */
+    protected function fetchReservedMovies($movies) {
+        if (!ENABLE_RESERVATION) return $movies;
+
+        $orm = new MysqlORM('Movie');
+        $mysqli = $orm->mysqli();
+
+        $moviesMap = array();
+        $moviesMid = array();
+        foreach ($movies as $movie) {
+            $mid = $mysqli->real_escape_string($movie->mid);
+            $moviesMid[] = "'$mid'";
+            $moviesMap[$movie->mid] = $movie;
+        }
+
+        $movieMids = implode(',', $moviesMid);
+        $source = $this->movieList->source;
+        $query = <<<EOL
+SELECT source, mid, name, link, imageURL, runtime, info
+    FROM movies
+    WHERE source = '$source' AND mid in ($movieMids)
+EOL;
+        $reservedMovies = $orm->mapArray($query);
+        foreach ($reservedMovies as $reservedMovie) {
+            $mid = $reservedMovie->mid;
+            $movie = $moviesMap[$mid];
+
+            $reservedMovie->info = json_decode($reservedMovie->info, true);
+            $reservedMovie->showtimes = $movie->showtimes;
+
+            $movie->assignMovie($reservedMovie);
+            
+            unset($moviesMap[$mid]);
+        }
+
+        return $moviesMap;
+    }
+
 
     protected function fetchExtraMovieInfo($movie) {
         static $matcher = null;
@@ -228,7 +273,7 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         }
 
         $count = count($matches);
-        $isPM = true;
+        $isPM = false;
         $showtimes = array();
         for ($i=$count-1; $i >= 0 ; $i--) { 
             $showtime = $matches[$i];
