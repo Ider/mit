@@ -9,7 +9,7 @@ include_once 'src/services/reservation/interface.php';
 /**
  * MysqlReverser reserve all fetched data to mysql databse on local server
  */
-class MysqlReverser extends IReserver {
+class MysqlReverser implements IReserver {
 
     public function reserveTheaterList(TheaterList $list) {
         if (!$list || empty($list->theaters)) {
@@ -156,7 +156,7 @@ EOL;
  * BogusReserver, it is uesed when local reservation is disabled
  *        all inherited reserving methods are doing nothing
  */
-class BogusReserver extends Reserver {
+class BogusReserver implements IReserver {
     public function reserveTheaterList(TheaterList $list) {}
     public function reserveTheater(Theater $theater) {}
     public function reserveMovieList(MovieList $list) {}

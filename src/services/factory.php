@@ -1,6 +1,9 @@
 <?php
-include_once 'src/utilities/util.php';
 include_once 'src/services/google/fetcher.php';
+include_once 'src/services/reservation/fetcher.php';
+include_once 'src/services/reservation/loader.php';
+include_once 'src/services/reservation/reserver.php';
+include_once 'src/utilities/util.php';
 
 class FetcherFactory {
 
