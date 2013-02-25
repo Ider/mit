@@ -1,28 +1,22 @@
 
 <?php
 include_once 'src/services/connector.php';
-include_once "src/models/theater.php";
-include_once "src/models/movie.php";
+include_once 'src/models/theater.php';
+include_once 'src/models/movie.php';
 include_once 'src/utilities/util.php';
-
-abstract class Reserver {
-    abstract public function reserveTheaterList(TheaterList $list);
-    abstract public function reserveTheater(Theater $theater);
-    abstract public function reserveMovieList(MovieList $list);
-    abstract public function reserveMovie(Movie $movie);
-}
+include_once 'src/services/reservation/interface.php';
 
 /**
- * DBReverser reserve all
+ * MysqlReverser reserve all fetched data to mysql databse on local server
  */
-class DBReverser extends Reserver {
+class MysqlReverser extends IReserver {
 
     public function reserveTheaterList(TheaterList $list) {
         if (!$list || empty($list->theaters)) {
             return;
         }
 
-        $mysqli = DBConnector::getMysqli();
+        $mysqli = MysqlConnector::getMysqli();
 
         $theaterValues = array();
 
@@ -70,11 +64,11 @@ EOL;
     }
 
     /**
-     * Reserve movie showtimes, if not empty, as well as the movie infomation if its _fromDB is false;
+     * Reserve movie showtimes, if not empty
      * @param  MovieList $list a list that contains movies with showtime in certain theater
      */
     public function reserveMovieList(MovieList $list) {
-        $mysqli = DBConnector::getMysqli();
+        $mysqli = MysqlConnector::getMysqli();
         
         $source = $mysqli->real_escape_string($list->source);
         $tid = $mysqli->real_escape_string($list->tid);
@@ -138,7 +132,7 @@ INSERT INTO movies(source, mid, name, link, imageURL, runtime, info)
     VALUES(?, ?, ?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE source = source
 EOL;
-        $mysqli = DBConnector::getMysqli();
+        $mysqli = MysqlConnector::getMysqli();
         $stm = $mysqli->prepare($query);
         
         $stm->bind_param('sssssis', $source, $mid, $name, $link, $imageURL, $runtime, $info);

@@ -1,6 +1,6 @@
 <?php
-include_once 'src/services/google/fetcher.php';
 include_once 'src/utilities/util.php';
+include_once 'src/services/google/fetcher.php';
 
 class FetcherFactory {
 
@@ -18,16 +18,15 @@ class FetcherFactory {
             = array('google' => 'GoogleMoviesFetcher',
                     'cinemark' => null,
                         );
+
     public static function theaterListFetcher($area, $source = 'google') {
         $source = self::formatSource($source);
 
         //try to get data from database
-        if (ENABLE_RESERVATION) {
-            $fetcher = new DBTheaterFetcher($area, $source);
-            if ($fetcher->hasDataReserved()) {
-                error_log('has data saved');
-                return $fetcher;
-            }
+        $fetcher = new ReservationTheaterFetcher($area, $source);
+        if ($fetcher->theaterListSize() > 0) {
+            error_log('has data saved');
+            return $fetcher;
         }
 
         //no data saved in database, fetche data from source
@@ -40,12 +39,10 @@ class FetcherFactory {
         $date = DateUtil::formatDate($date);
 
         //try to get data from database
-        if (ENABLE_RESERVATION) {
-            $fetcher = new DBMoviesFetcher($tid, $date, $source);
-            if ($fetcher->hasDataReserved()) {
-                error_log('has data saved');
-                return $fetcher;
-            }
+        $fetcher = new ReservationMoviesFetcher($tid, $date, $source);
+        if ($fetcher->movieListSize() > 0) {
+            error_log('has data saved');
+            return $fetcher;
         }
 
         $fetcherClass = self::$movieFetcherClasses[$source];
@@ -62,13 +59,14 @@ class FetcherFactory {
     }
 }
 
-class ReserverFactory {
+class ReservationFactory {
+    //singleton mapper
     protected static $reservers = array();
     
     public static function reserver() {
         $reserverClassName = 'BogusReserver';
         if (ENABLE_RESERVATION) {
-            $reserverClassName = 'DBReverser';
+            $reserverClassName = 'MysqlReverser';
         } 
 
         return self::getReserver($reserverClassName);
@@ -80,6 +78,16 @@ class ReserverFactory {
         }
 
         return self::$reservers[$className];
-    }   
+    }
 
+    public static function loader($source) {
+        $fetcherClass = 'BogusLoader';
+        if (ENABLE_RESERVATION) {
+            $fetcherClass = 'MysqlLoader';
+        }
+
+        $fetcher = new $fetcherClass($source);
+        return $fetcher;
+    }
 }
+

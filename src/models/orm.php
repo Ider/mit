@@ -1,7 +1,7 @@
 <?php
 include_once 'src/services/connector.php';
 
-class MysqlORM extends DBConnector{
+class MysqlORM extends MysqlConnector{
     private $modelType;
     public function __construct($type) {
         $this->modelType = $type;

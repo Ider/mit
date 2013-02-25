@@ -1,7 +1,6 @@
 <?php
 include_once 'src/models/theater.php';
 include_once 'src/models/movie.php';
-include_once 'src/models/orm.php';
 include_once 'src/services/reserver.php';
 include_once 'src/services/factory.php';
 
@@ -13,13 +12,27 @@ abstract class TheatersFetcher {
         $this->theaterList->area = $area;
     }
 
+    /**
+     * This method directly measure $theaterList varaible, it does not call theaterList(), hence it would
+     * not fire fetching process, even if movies does not fetched.
+     * @return int      Count of theaters in $theaterList
+     */
+    public function theaterListSize() {
+        return count($this->theaterList->theaters);
+    }
+
+    /**
+     * Getter of $theaterList, if $theaters of $theaterList is empty, it call fetchTheaters() to fetch
+     * theater data from out source, and reserve to local reservation
+     * @return TheaterList      Class member $theaterList
+     */
     public function theaterList() {
         if (empty($this->theaterList->theaters)) {
             $this->theaterList->theaters = $this->fetchTheaters();
 
             //reserve theater data to database,
             //if do not want this happen, update $this->theaterList->theaters in __construct 
-            $reserver = ReserverFactory::reserver();
+            $reserver = ReservationFactory::reserver();
             $reserver->reserveTheaterList($this->theaterList);
         }
 
@@ -42,12 +55,25 @@ abstract class MoviesFetcher {
         $this->movieList = $list;
     }
 
+    /**
+     * This method directly measure $movieList variable, it does not call movieList() to get $moiveList.
+     * @return int      Count of movies in current $movieList
+     */
+    public function movieListSize() {
+        return count($this->movieList->movies);
+    }
+
+    /**
+     * Getter of $movieList. If $movies of $movieList is empty, it call abstract methods
+     * to fetcher required data, and reserve data to local reservation.
+     * @return MovieList    Class member $movieList
+     */
     public function movieList() {
         if (empty($this->movieList->movies)) {
             $this->movieList->theater = $this->fetchTheater();
             $this->movieList->movies = $this->fetchTheaterMovies();
 
-            $reserver = ReserverFactory::reserver();
+            $reserver = ReservationFactory::reserver();
             $reserver->reserveMovieList($this->movieList);
         }
 
@@ -56,7 +82,7 @@ abstract class MoviesFetcher {
 
     /**
      * Fetch theater infomation associfated with tid
-     * @return Theater [description]
+     * @return Theater 
      */
     abstract protected function fetchTheater();
 
@@ -70,65 +96,44 @@ abstract class MoviesFetcher {
 
 /********************* Database Fetcher *********************/
 
-class MysqlDB {
-    const SOURCE = 'mysql';
-}
 
-class DBTheaterFetcher extends TheatersFetcher{
-    public $search_source = '';
-    
+class ReservationTheaterFetcher extends TheatersFetcher{
+    protected $search_source = '';
+    protected $loader;
+
     public function __construct($area, $source) {
         parent::__construct($area);
-        $this->theaterList->source = MysqlDB::SOURCE;
+        $this->theaterList->source = $source;
         $this->search_source = $source;
-        //fetch theaters immediately to prevent fetching from super class
-        //and readd to database
+
+        $this->loader = ReservationFactory::loader($source);
+
+        //Fetch theaters immediately so that caller could check with theaterListSize() to know if data has reservation 
+        //it also prevents fetching from super class
         $this->theaterList->theaters = $this->fetchTheaters();
     }
 
     protected function fetchTheaters() {
-        $orm = new MysqlORM('Theater');
-        $mysqli = $orm->mysqli();
-        $search_sign = $mysqli->real_escape_string($this->theaterList->area);
-        $source = $mysqli->real_escape_string($this->search_source);
-        $query = <<<EOL
-SELECT search_sign, source, tid, name, link, address, phone
-    FROM theaters
-    WHERE search_sign = '$search_sign' AND source = '$source'
-EOL;
-        $theaters = $orm->mapArray($query);
-        $orm->close();
+        $search_sign = $this->theaterList->area;
+        
+        $theaters = $this->loader->loadTheatersWithSearch($search_sign);
         return $theaters;
-    }
-
-    public static function fetchTheater($tid, $source) {
-        $orm = new MysqlORM('Theater');
-        $mysqli = $orm->mysqli();
-        $tid = $mysqli->real_escape_string($tid);
-        $source = $mysqli->real_escape_string($source);
-        $query = <<<EOL
-SELECT source, tid, name, link, address, phone
-    FROM theaters
-    WHERE tid = '$tid' AND source = '$source'
-EOL;
-
-        $theater = $orm->mapObject($query);
-        $orm->close();
-        return $theater;
-    }
-
-    public function hasDataReserved() {
-        return !empty($this->theaterList->theaters);
     }
 }
 
-class DBMoviesFetcher extends MoviesFetcher{
-    public $search_source = '';
-    
+class ReservationMoviesFetcher extends MoviesFetcher{
+    protected $search_source = '';
+    protected $loader;
+
     public function __construct($tid, $date, $source) {
         parent::__construct($tid, $date);
         $this->search_source = $source;
-        $this->theaterList->source = MysqlDB::SOURCE;
+        $this->movieList->source = $source;
+
+        $this->loader = ReservationFactory::loader($source);
+
+        //Fetch movies immediately so that caller could check with size() to know if data has reservation 
+        //it also prevents fetching from super class
         $theater = $this->fetchTheater();
         if ($theater) {
             $this->movieList->theater = $theater;
@@ -137,38 +142,18 @@ class DBMoviesFetcher extends MoviesFetcher{
     }
 
     protected function fetchTheater() {
-        return DBTheaterFetcher::fetchTheater($this->movieList->tid, $this->search_source);
+        $tid = $this->movieList->tid;
+
+        $theater = $this->loader->loadTheaterWithId($tid);
+        return $theater;
     }
 
     protected function fetchTheaterMovies() {
-        $orm = new MysqlORM('Movie');
-        $mysqli = $orm->mysqli();
-        $tid = $mysqli->real_escape_string($this->movieList->tid);
-        $source = $mysqli->real_escape_string($this->search_source);
-        $date = $mysqli->real_escape_string($this->movieList->showtime_date);
-        $query = <<<EOL
-SELECT m.source, m.mid, m.name, m.link, m.imageURL, m.runtime, m.info, s.showtimes
-    FROM movies AS m JOIN showtimes AS s
-        ON (m.mid = s.mid AND m.source = s.source)
-    WHERE s.tid = '$tid' 
-        AND s.showtime_date = '$date'
-        AND s.source = '$source'
-EOL;
-        $movies = $orm->mapArray($query);
+        $tid = $this->movieList->tid;
+        $date = $this->movieList->showtime_date;
 
-        // json decode movie showtimes to array
-        // and movie info to dictionary
-        foreach ($movies as $movie) {
-            $movie->showtimes = json_decode($movie->showtimes, true);
-            $movie->info = json_decode($movie->info, true);
-        }
-
-        $orm->close();
+        $movies = $this->loader->loadMoviesWithShowTime($tid, $date);
         return $movies;
-    }
-
-    public function hasDataReserved() {
-        return !empty($this->movieList->movies);
     }
 }
 

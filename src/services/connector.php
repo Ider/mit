@@ -1,7 +1,7 @@
 <?php
 include_once "config.php";
 
-class DBConnector{
+class MysqlConnector{
     public static function getMysqli() {
         $mysqli = new mysqli(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
         
