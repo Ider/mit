@@ -1,6 +1,7 @@
 <?php
-include_once 'src/services/fetcher.php';
 include_once 'src/models/matcher.php';
+include_once 'src/services/fetcher.php';
+include_once 'src/services/reservation/loader.php';
 include_once 'src/utilities/util.php';
 
 
@@ -185,7 +186,7 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
 
             $movie->link = $config::movieLink($movie->mid);
             $movie->source = $config::SOURCE;
-            
+
             $movie->name = EncodingUtil::htmlDecode($movie->name);
 
             $movies[] = $movie;
@@ -212,7 +213,7 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
      * @return Array of movies that are not found in Database
      */
     protected function fetchReservedMovies($movies) {
-        if (!ENABLE_RESERVATION) return $movies;
+        $loader = ReservationFactory::loader($this->movieList->source);
 
         $orm = new MysqlORM('Movie');
         $mysqli = $orm->mysqli();
@@ -220,19 +221,12 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         $moviesMap = array();
         $moviesMid = array();
         foreach ($movies as $movie) {
-            $mid = $mysqli->real_escape_string($movie->mid);
-            $moviesMid[] = "'$mid'";
+            $moviesMid[] = $movie->mid;
             $moviesMap[$movie->mid] = $movie;
         }
 
-        $movieMids = implode(',', $moviesMid);
-        $source = $this->movieList->source;
-        $query = <<<EOL
-SELECT source, mid, name, link, imageURL, runtime, info
-    FROM movies
-    WHERE source = '$source' AND mid in ($movieMids)
-EOL;
-        $reservedMovies = $orm->mapArray($query);
+        $reservedMovies = $loader->loadMoviesWithIds($moviesMid);
+        error_log(count($reservedMovies));
         foreach ($reservedMovies as $reservedMovie) {
             $mid = $reservedMovie->mid;
             $movie = $moviesMap[$mid];
