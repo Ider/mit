@@ -46,3 +46,42 @@ class DateUtil {
         return $date->format(self::DATE_FORMAT);
     }
 }
+
+class EncodingUtil {
+    const UTF8 = 'UTF-8';
+
+    /**
+     * convert charset encoding to utf8
+     * @param  String $content  content need to convert
+     * @param  String $encoding orignal encoding
+     * @return String           Converted content
+     */
+    public static function convertToUTF8($content, $encoding) {
+        return mb_convert_encoding($content, self::UTF8, $encoding);
+    }
+
+    /**
+     * Decode html entities and special characters to original chars
+     * @param  String $content Content need to decode
+     * @return String         Decoded content
+     */
+    public static function htmlDecode($content) {
+        return html_entity_decode($content, ENT_QUOTES , self::UTF8); 
+    }
+
+    /**
+     * Encode special html characters, no html entities encoded
+     * @param  String $content Contetn need to encode
+     * @return String          Encoded content
+     */
+    public static function htmlEncode($content) {
+        return htmlspecialchars ($content);
+    }
+
+}
+
+
+
+
+
+

@@ -1,11 +1,14 @@
 <?php
-require_once 'src/services/fetcher.php';
-require_once 'src/models/matcher.php';
+include_once 'src/services/fetcher.php';
+include_once 'src/models/matcher.php';
+include_once 'src/utilities/util.php';
+
 
 class GoogleMovie {
     const URL = 'http://www.google.com/movies?near=usa';
     const SOURCE = 'google';
-
+    const ENCODING = 'ISO-8859-1';
+    
     public static function theaterListContentURL($area) {
         $url = static::URL;
         return "$url+$area";
@@ -59,8 +62,9 @@ class GoogleTheatersFetcher extends TheatersFetcher {
             return;
         }
 
+        $con = EncodingUtil::convertToUTF8($con, $config::ENCODING);
+        
         static $separator = '<div class=theater>';
-
         $arr = explode($separator, $con);
         if (array_shift($arr) === null) {
             //TODO: log error here
@@ -88,6 +92,9 @@ class GoogleTheatersFetcher extends TheatersFetcher {
             $theater->link = $config::theaterLink($theater->tid);
             $theater->source = $config::SOURCE;
 
+            $theater->name = EncodingUtil::htmlDecode($theater->name);
+            $theater->address = EncodingUtil::htmlDecode($theater->address);
+            
             $theaters[] = $theater;
         }
         return $theaters;
@@ -175,8 +182,11 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
         foreach ($this->contents as $content) {
             $movie = static::fetchMovie($content);
             if ($movie == null) continue;
+
             $movie->link = $config::movieLink($movie->mid);
             $movie->source = $config::SOURCE;
+            
+            $movie->name = EncodingUtil::htmlDecode($movie->name);
 
             $movies[] = $movie;
         }
@@ -295,7 +305,7 @@ EOL;
         static $patternList = null;
         if ($patternList == null) {
             $patternList = array(
-                array('name', '>([^><]+?)</a>', function($matches) { return html_entity_decode($matches[1]); }),
+                array('name', '>([^><]+?)</a>'),
                 array('mid', 'mid=([a-z0-9]+)'),
                 array('runtime', '(\d+)hr (\d+)min', function($matches){ return $matches[1]*60+$matches[2]; }),
             );
