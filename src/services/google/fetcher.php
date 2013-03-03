@@ -217,9 +217,6 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
     protected function fetchReservedMovies($movies) {
         $loader = ReservationFactory::loader($this->movieList->source);
 
-        $orm = new MysqlORM('Movie');
-        $mysqli = $orm->mysqli();
-
         $moviesMap = array();
         $moviesMid = array();
         foreach ($movies as $movie) {
