@@ -159,8 +159,10 @@ class GoogleMoviesFetcher extends MoviesFetcher  {
             //TODO: log error here
             return;
         }
-        static $separator = '<div class=movie>';
 
+        $con = EncodingUtil::convertToUTF8($con, $config::ENCODING);
+        
+        static $separator = '<div class=movie>';
         $arr = explode($separator, $con);
         $theaterContent = array_shift($arr);
         if ($theaterContent === null) {
